@@ -1,0 +1,63 @@
+version: "3.8"
+services:
+  pga:
+    image: dpage/pgadmin4:8.11
+    container_name: pgadmin
+    ports:
+      - 8081:80
+    volumes:
+      - ./spring-ms-in-action-pga.json:/pgadmin4/servers.json
+    environment:
+      - 'PGADMIN_DEFAULT_EMAIL=olezhuravlev@gmail.com'
+      - 'PGADMIN_DEFAULT_PASSWORD=admin'
+    depends_on:
+      - keycloak-pg
+    networks:
+      - keycloak-network
+  keycloak-pg:
+    image: postgres:alpine3.19
+    container_name: keycloak-pg
+    ports:
+      - 5432:5432
+    environment:
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=postgres'
+    networks:
+      - keycloak-network
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.0
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-pg:5432/postgres
+      #KC_HOSTNAME: keycloak # MUST MATCH WITH URL TO ACCESS ADMIN CONSOLE (URL TO REDIRECT TO)!
+      #KC_HOSTNAME_PORT: 8080
+      #KC_HOSTNAME_STRICT: "false"
+      #KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - keycloak-pg
+    volumes:
+      - ./keycloak/config:/opt/keycloak/data/import
+      - ./keycloak/docker_healthcheck.sh:/docker_healthcheck.sh
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm" ]
+    ports:
+      - "8080:8080"
+      - "9000:9000" # Management interface port.
+    healthcheck:
+      test: [ 'CMD-SHELL', '/bin/bash -c "/docker_healthcheck.sh 8080 /health/ready"' ]
+      interval: 5s # After 5 seconds.
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - keycloak-network
+networks:
+  keycloak-network:
+    driver: bridge
