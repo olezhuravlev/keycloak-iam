@@ -95,7 +95,7 @@ http://localhost:8080/realms/myrealm/account/#/
    проверять подлинность пользователя, используя `ID Token` и получать данные, используя `Access Token`.
 7. Пользователю отображается страница аутентифицированного пользователя.
 
-![auth_code_flow.jpg](img/auth_code_flow_frontend.jpg)
+![auth_code_flow_frontend.jpg](img/200_auth_code_flow_frontend.jpg)
 
 #### Токены, генерируемые Keycloak:
 
@@ -196,7 +196,7 @@ http://localhost:8080/realms/myrealm/account/#/
    выпущен Keycloak, является ли он валидным и содержит ли требуемые роли);
 4. Бекенд возвращает результат фронтенду.
 
-![auth_code_flow_backend.jpg](img/auth_code_flow_backend.jpg)
+![auth_code_flow_backend.jpg](img/210_auth_code_flow_backend.jpg)
 
 ---
 
@@ -247,7 +247,7 @@ http://localhost:8080/realms/myrealm/account/#/
    на `Access Token`;
 6. Приложение использует полученный `Access token` для обращения к защищенным ресурсам.
 
-![oauth2_code_flow.jpg](img/oauth2_code_flow.jpg)
+![oauth2_code_flow.jpg](img/300_oauth2_code_flow.jpg)
 
 ---
 
@@ -275,8 +275,7 @@ http://localhost:8080/realms/myrealm/account/#/
 - **Bearer Tokens (RFC 6750)** : часто используемый тип токенов, обычно отправляемых на ресурсный сервер в HTTP-заголовке `Authorization`.
   Также могут передаваться в теле запроса или как параметр запроса, что является небезопасным. Не являются частью OAuth 2.0;
 - **Token Introspection (RFC 7662)**: в OAuth 2.0 содержимое `Access Tokens` недоступно для приложений, а точка
-  доступа `Token Introspection`
-  позволяет клиенту получить информацию об `Access Tokens` не зная его формата;
+  доступа `Token Introspection` позволяет клиенту получить информацию об `Access Tokens` не зная его формата;
 - **Token Revocation (RFC 7009)**: Точка доступа `Token Revocation` позволяет отозвать `Access Token` т.к. OAuth 2.0 регламентирует
   выдачу токенов приложению, но не регламентирует их отзыв.
 
@@ -349,8 +348,8 @@ http://localhost:8080/realms/myrealm/account/#/
 > **JOSE (JavaScript Object Signing and Encryption)** - набор спецификаций, послуживший основой для создания JWT.
 
 JWT используется в целях совместимости и простоты интеграции.
-Кроме того, его использование избавляет ресурсные серверы от необходимости выполнять запросы к точкам
-доступа Keycloak `OAuth 2.0 Token Introspection`, или `OIDC UserInfo`.
+Кроме того, его использование избавляет ресурсные серверы от необходимости выполнять запросы к точкам доступа
+Keycloak `OAuth 2.0 Token Introspection`, или `OIDC UserInfo`.
 
 ### Спецификации, связанные с JWT:
 
@@ -421,7 +420,7 @@ curl http://localhost:8080/realms/myrealm | jq
 curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
 ```
 
-#### Будут возвращены URL:
+#### [Будут возвращены URL](#keycloak-urls):
 
 | № | Точка доступа                         | URL                                                 | Назначение                                                                            |
 |---|---------------------------------------|-----------------------------------------------------|---------------------------------------------------------------------------------------|
@@ -432,12 +431,12 @@ curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
 |   | Device Authorization Endpoint         | `/protocol/openid-connect`/auth/device              |                                                                                       |
 | 2 | Token Endpoint                        | `/protocol/openid-connect`/token                    | URL для `Token Request` и `Refresh Request` для обмена `Authorization Code` на токены |
 |   | End Session Endpoint                  | `/protocol/openid-connect`/logout                   | URL для `Logout Request`                                                              |
-|   | JWKS URI                              | `/protocol/openid-connect`/certs                    |                                                                                       |
+|   | JWKS URI                              | `/protocol/openid-connect`/certs                    | URL для получения публичных ключей Keycloak                                           |
 |   | Backchannel Authentication Endpoint   | `/protocol/openid-connect`/ext/ciba/auth            |                                                                                       |
 |   | Pushed Authorization Request Endpoint | `/protocol/openid-connect`/ext/par/request          |                                                                                       |
 |   | Check Session IFrame                  | `/protocol/openid-connect`/login-status-iframe.html |                                                                                       |
 |   | Revocation Endpoint                   | `/protocol/openid-connect`/revoke                   |                                                                                       |
-|   | Introspection Endpoint                | `/protocol/openid-connect`/token/introspect         | URL для `Introspection request`                                                       |
+|   | Introspection Endpoint                | `/protocol/openid-connect`/token/introspect         | URL для верификации токена доступа                                                    |
 |   | Userinfo Endpoint                     | `/protocol/openid-connect`/userinfo                 | URL для получения информации об аутентифицированном пользователе (`UserInfo Request`) |
 
 Кроме того, возвращаются:
@@ -449,12 +448,14 @@ curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
     - `token` -
 
 > Авторизационнй код имеет вид:
+> 
 > `code=2f9bcd88-25c5-4f80-8195-29e1779a7bda.4f61dc0c-0dd6-4f89-adec-de3d0a45cdc7.8088567f-afe6-4d48-8927-e9d2e7bcdc1b`
 > и используется приложением для получения `ID Token` и `Refresh Token`.
 
 ---
 
 ---
+
 # 4. Процесс аутентификации OIDC (OpenID Connect)
 
 1. Пользователь нажимает кнопку "Login";
@@ -475,10 +476,10 @@ curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
 <tr>
 <td>
 
-![openid_connect_auth_code_flow.jpg](img/openid_connect_auth_code_flow.jpg)</td>
+![openid_connect_auth_code_flow.jpg](img/400_openid_connect_auth_code_flow.jpg)</td>
 <td>
 
-![openid_connect_auth_code_flow_2.jpg](img/openid_connect_auth_code_flow_2.jpg)</td>
+![openid_connect_auth_code_flow_2.jpg](img/410_openid_connect_auth_code_flow_2.jpg)</td>
 </tr>
 </table>
 
@@ -563,7 +564,7 @@ redirect_uri=http://localhost:8000/
 - `session_state` - идентификатор сессии, в которой пользователь подключался к Keycloak;
 - `scope` - выданный `scope` (может отличаться от `scope`, запрошенного приложением в `Authentication Request`);
 
-## ID Token, полученный после Token Response
+### ID Token, полученный после Token Response
 
 Является подписанным JSON Web Token (JWT) и состоит из трех частей - `Header`, `Payload` и `Signature`.
 
@@ -633,7 +634,7 @@ Hd-8yQLHJnaOJhBSzYlx7XUvCcg0MW_nPqiyWxlb13IQTye5pJ1fgN19vYkuXCJKHSrUILGjYHhbIQAF
 
 ---
 
-## Refresh Request
+### Refresh Request
 
 ```text
 http://localhost:8080/realms/myrealm/protocol/openid-connect/token
@@ -644,7 +645,7 @@ client_id=oidc-playground
 scope=openid
 ```
 
-## Refresh Response
+### Refresh Response
 
 ```json
 {
@@ -669,7 +670,7 @@ scope=openid
 - **утечка токена обновления** - для исключения утечки токенов обновления Keycloak не позволит повторно использовать токены обновления (по
   умолчанию в Keycloak эта функция отключена).
 
-## ID Token, полученный после Refresh Response
+### ID Token, полученный после Refresh Response
 
 ```json
 {
@@ -698,27 +699,30 @@ scope=openid
 
 ---
 
-# Добавление пользовательского свойства
+## Добавление пользовательского свойства
 
 1. Зайти в административную консоль Keycloak на закладку "Users":
-   ![01_keycloak_users.png](img/100_keycloak_users.png)
+
+![keycloak_users.png](img/420_keycloak_users.png)
 
 2. Зайти в настройки пользователя, перейти на закладку "Attributes", добавить желаемый атрибут (`myattribute`) и сохранить:
-   ![02_keycloak_user_keycloak.png](img/110_keycloak_user_keycloak.png)
+
+![keycloak_user_keycloak.png](img/421_keycloak_user_keycloak.png)
 
 3. Создать клиентскую область видимости (`Scope`). Для этого перейти в меню "Client scopes" и на закладке "Settings" задать имя области
    видимости 'myscope' и сохранить:
 
-![03_keycloak_clientScope_myscope.png](img/120_keycloak_clientScope_myscope.png)
+![keycloak_clientScope_myscope.png](img/422_keycloak_clientScope_myscope.png)
 
 > Клиентский scope позволяет создавать повторно используемые группы параметров, которые добавляются в токен выпускаемый клиенту.
 
 4. Создать сопоставление (`mapper`). Для этого перейти на закладку "Mappers", нажать кнопку "Add mapper" и выбрать "By configuration":
 
-![04_keycloak_clientScope_myscope_mapper_byConfiguration.png](img/130_keycloak_clientScope_myscope_mapper_byConfiguration.png)
+![keycloak_clientScope_myscope_mapper_byConfiguration.png](img/423_keycloak_clientScope_myscope_mapper_byConfiguration.png)
 
 В меню выбрать пункт "User Attribute":
-![04_keycloak_clientScope_myscope_mapper_byConfiguration_userAttribute.png](img/131_keycloak_clientScope_myscope_mapper_byConfiguration_userAttribute.png)
+
+![keycloak_clientScope_myscope_mapper_byConfiguration_userAttribute.png](img/424_keycloak_clientScope_myscope_mapper_byConfiguration_userAttribute.png)
 
 Далее, в параметрах сопоставления указать:
 
@@ -730,13 +734,13 @@ scope=openid
 
 И сохранить:
 
-![04_keycloak_clientScope_myscope_mapper_myattribute.png](img/132_keycloak_clientScope_myscope_mapper_myattribute.png)
+![keycloak_clientScope_myscope_mapper_myattribute.png](img/425_keycloak_clientScope_myscope_mapper_myattribute.png)
 
 5. Добавить клиенту созданную область видимости (`scope`) в качестве опциональной. Для этого перейти в меню "Clients", выбрать требуемого
    клиента (`oidc-playground`) и на закладке "Client scopes" нажать кнопку "Add client scope", после чего в открывшемся меню пометить
    флажком требуемую область видимости (`myscope`) после чего нажать кнопку "Add" и выбрать вариант "Optional":
 
-![05_keycloak_client_oidc-playground_myscope.png](img/140_keycloak_client_oidc-playground_myscope.png)
+![keycloak_client_oidc-playground_myscope.png](img/426_keycloak_client_oidc-playground_myscope.png)
 
 **Т.о. опциональный `scope` был добавлен клиенту.**
 
@@ -746,18 +750,21 @@ scope=openid
 
 ---
 
-# Добавление ролей в "ID Token"
+## Добавление ролей в "ID Token"
 
 По умолчанию роли в `ID Token` не добавляются.
 
 1. В меню "Client scopes" выбрать область видимости `roles`:
-   ![200_client_scopes.png](img/200_client_scopes.png)
+
+![client_scopes.png](img/430_client_scopes.png)
 
 2. В настройках области видимости `roles` перейти на закладку "Mappers" и выбрать сопоставление `realm roles`:
-   ![210_client_scopes_roles.png](img/210_client_scopes_roles.png)
+
+![client_scopes_roles.png](img/431_client_scopes_roles.png)
 
 3. В настройках сопоставления `realm roles` включить признак "Add to ID token" и сохранить:
-   ![220_client_scopes_roles_realmRoles.png](img/220_client_scopes_roles_realmRoles.png)
+
+![client_scopes_roles_realmRoles.png](img/432_client_scopes_roles_realmRoles.png)
 
 Теперь в составе `ID Token` в разделе `realm_access.roles` будет присутствовать массив ролей:
 
@@ -835,9 +842,9 @@ scope=openid
 
 ---
 
-# Получение UserInfo
+## Получение UserInfo
 
-## UserInfo Request
+### UserInfo Request
 
 ```text
 http://localhost:8080/realms/myrealm/protocol/openid-connect/userinfo
@@ -845,7 +852,7 @@ http://localhost:8080/realms/myrealm/protocol/openid-connect/userinfo
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjUzNjY0MjIsImlhdCI6MTcyNTM2NjEyMiwiYXV0aF90aW1lIjoxNzI1MzY2MTE0LCJqdGkiOiJkYTI3MjkyZi02ZmNiLTRlZTAtOWM5ZC1iNjk0MjJiNTc3NjYiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL215cmVhbG0iLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoib2lkYy1wbGF5Z3JvdW5kIiwic2Vzc2lvbl9zdGF0ZSI6ImVjZjZlMTg3LWJjYzMtNDUyNi05ZWU2LTUzOGE0MzNlMWJiNSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovL2xvY2FsaG9zdDo4MDAwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW15cmVhbG0iLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIiwibXlyb2xlIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgbXlzY29wZSBwcm9maWxlIGVtYWlsIiwic2lkIjoiZWNmNmUxODctYmNjMy00NTI2LTllZTYtNTM4YTQzM2UxYmI1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyRmlyc3ROYW1lMiBVc2VyTGFzdE5hbWUyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoia2V5Y2xvYWsiLCJnaXZlbl9uYW1lIjoiVXNlckZpcnN0TmFtZTIiLCJmYW1pbHlfbmFtZSI6IlVzZXJMYXN0TmFtZTIiLCJteWF0dHJpYnV0ZSI6Im15dmFsdWUiLCJwaWN0dXJlIjoiaHR0cHM6Ly81OS5pbWcuYXZpdG8uc3QvYXZhdGFyL3NvY2lhbC8yNTZ4MjU2LzQ5MjUxMTMyNTkuanBnIiwiZW1haWwiOiJrZXljbG9hazJAa2V5Y2xvYWsub3JnIn0.ONVLdu3mj5ABD6iffD7N5QewCQceOHQsB-aq20CZ2izCViL1hLySJlumgeKbv9gr84MfjDF8ldaUG6rUQvGoqZuMIhLimkD4T9QJk1QrLNjUA3md3MolR-8Sv5nTxRi2c2-VEYJHu0vCGLAPKHvGmYZJImYBZqVhPW2VURDQnIhqdRiH2lHZ2a51qV1YgnkuBVcnm-ixckyzXhC9izd11R32pg5zDweSaDIyRSF4E4PpoBaBEePSDWBICH4O7cmT4L_Uykcak27fADQDDD_XK6YwnxhmySlO_jMXSkeNwyO7zHURa1-QPOOr-HVSKsJAobXzcnrStKyjrxQdTj4-_Q
 ```
 
-## UserInfo Response
+### UserInfo Response
 
 Содержит только пользовательские аттрибуты:
 
@@ -872,14 +879,16 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWD
 ### Настройка информации, возвращаемой UserInfo
 
 1. Добавить сопоставление непосредственно клиенту. Для этого в меню "Clients" выбираем клиента (здесь - `oidc-playground`):
-   ![300_client.png](img/300_client.png)
+
+![client.png](img/440_client.png)
 
 2. В настройках клиента на закладке "Client scopes" заходим в настройки области (здесь - `oidc-playground-dedicated`):
-   ![310_client_oidc-playground.png](img/310_client_oidc-playground.png)
+
+![client_oidc-playground.png](img/441_client_oidc-playground.png)
 
 3. Жмем кнопку "Configure a new mapper" (или "Add mapper" -> "By configuration" если сопоставления уже есть) и выбираем "Hardcoded claim":
 
-![320_client_oidc-playground_hardcodedClaim.png](img/320_client_oidc-playground_hardcodedClaim.png)
+![client_oidc-playground_hardcodedClaim.png](img/442_client_oidc-playground_hardcodedClaim.png)
 
 4. В параметрах сопоставления указать:
 
@@ -889,7 +898,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWD
 - **Claim JSON Type**: `String`
 - **Признак "Add to userinfo"**: `ON`
 
-![330_client_oidc-playground_myOtherClaim.png](img/330_client_oidc-playground_myOtherClaim.png)
+![client_oidc-playground_myOtherClaim.png](img/443_client_oidc-playground_myOtherClaim.png)
 
 Теперь новое свойство `myotherclaim` отображается в информации о пользователе:
 
@@ -936,7 +945,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWD
 
 ---
 
-# Logout (SSO, Single-Sign Out)
+## Logout (SSO, Single-Sign Out)
 
 При инициализации логаута приложение перенаправляет пользователя на точку доступа `Keycloak End Session`, зарегистрированной в метаданных
 `OpenID Provider` как `end_session_endpoint` и принимающей следующие параметры:
@@ -1031,3 +1040,736 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWD
 В прочих случаях, или там, где **выход из системы должен быть мгновенным**, следует использовать `OIDC Back-Channel Logout`.
 
 ---
+
+---
+
+# 5. Авторизация доступа с помощью OAuth 2.0
+
+![510_obtain_oauth20_token.png](img/510_obtain_oauth20_token.png)
+
+1. Пользователь предпринимает действие, требующее отправки запроса к внешнему REST API;
+2. Приложение создаёт `Authorization Request`, размещая в нём набор параметров;
+3. Приложение отправляет `Authorization Request` с кодом `302` перенаправляя браузер пользователя на `Authorization Endpoint` Keycloak;
+4. Браузер пользователя переходит на `Authorization Endpoint` Keycloak с параметрами, содержащимися в `Authorization Endpoint`;
+5. Если пользователь еще не аутентифицирован, то Keycloak отправляет ему страницу логина;
+6. Если приложению требуется согласие пользователя на доступ к REST API (т.е. приложение хочет действовать от имени пользователя), то
+   пользователю отображается страница, на которой ему предлагается согласиться или отказаться от предоставления такого доступа;
+7. Keycloak передаёт приложению авторизационный код;
+8. Приложение отправляет `Token Request` с целью обмена полученного авторизационного кода на два токена - `Access Token` и `Refresh Token`;
+9. Приложение использует полученный `Access Token` для вызова REST API.
+
+---
+
+### Токен доступа
+
+#### Header:
+
+```json
+{
+  "alg": "RS256",
+  "typ": "JWT",
+  "kid": "GT_TX2zVJ0v3O6l4hsCyXT79d_bPSkZbrp8VvO2v2dY"
+}
+```
+
+#### Payload:
+
+```json
+{
+  "exp": 1726780390,
+  "iat": 1726780090,
+  "auth_time": 1726779738,
+  "jti": "e9a38cef-f965-4d0b-bf0c-c99cddc80f3a",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "account",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "31634ecf-5e65-4059-a720-645e76c41dbf",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "realm_access": {
+    "roles": [
+      "default-roles-myrealm",
+      "offline_access",
+      "uma_authorization",
+      "myrole"
+    ]
+  },
+  "resource_access": {
+    "account": {
+      "roles": [
+        "manage-account",
+        "manage-account-links",
+        "view-profile"
+      ]
+    }
+  },
+  "scope": "profile email",
+  "sid": "31634ecf-5e65-4059-a720-645e76c41dbf",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+**где:**
+
+- `aud`: список сервисов, для отправки в которые предназначен данный токен;
+- `realm_access`: список **глобальных ролей**, к которым токен предоставляет доступ. Является объединением ролей, назначенных пользователю,
+  и ролей к которым приложению разрешен доступ;
+- `resource_access`: список **клиентских ролей**, к которым токен предоставляет доступ;
+- `scope`: область видимости, включенная в `Access token`.
+
+#### Signature:
+
+```text
+oA3QCc5wP8ZTRyG3tpHpzg0EVXWH6xee2StZtX_bumU_iJTHB5eoXFvnAOlFpRHk6brGlgTFzPm6cwN8cMxv6nB-k3jCx-1trLmwoejAzTV9xLBuHrBhReDIaTh2T1yUwZDHQ3xQdBkuSSevo7CEQjPTDsFbK7R6H1U1uyaPMlHIdCVNQLCPWhvlWgNOR7vfM2t7Z6oXyWa8FWnBTb6oOaW1_4NkUO-ScxOuMQDz9wDqMe6xNLivsh_DDw_GLw4aoTzso2a6I9QqUdbWZ6uVqMLVmLKLuVlc985S35Z7MPqjfBgfMJ7dnNlMB7hD8YwA8dMIHLCESmY9_Ivoipq1Gg
+```
+
+#### Encoded:
+
+```text
+eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjY3ODAzOTAsImlhdCI6MTcyNjc4MDA5MCwiYXV0aF90aW1lIjoxNzI2Nzc5NzM4LCJqdGkiOiJlOWEzOGNlZi1mOTY1LTRkMGItYmYwYy1jOTljZGRjODBmM2EiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL215cmVhbG0iLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoib2F1dGgtcGxheWdyb3VuZCIsInNlc3Npb25fc3RhdGUiOiIzMTYzNGVjZi01ZTY1LTQwNTktYTcyMC02NDVlNzZjNDFkYmYiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1teXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIm15cm9sZSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjMxNjM0ZWNmLTVlNjUtNDA1OS1hNzIwLTY0NWU3NmM0MWRiZiIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiVXNlckZpcnN0TmFtZTIgVXNlckxhc3ROYW1lMiIsInByZWZlcnJlZF91c2VybmFtZSI6ImtleWNsb2FrIiwiZ2l2ZW5fbmFtZSI6IlVzZXJGaXJzdE5hbWUyIiwiZmFtaWx5X25hbWUiOiJVc2VyTGFzdE5hbWUyIiwicGljdHVyZSI6Imh0dHBzOi8vNTkuaW1nLmF2aXRvLnN0L2F2YXRhci9zb2NpYWwvMjU2eDI1Ni80OTI1MTEzMjU5LmpwZyIsImVtYWlsIjoia2V5Y2xvYWsyQGtleWNsb2FrLm9yZyJ9.oA3QCc5wP8ZTRyG3tpHpzg0EVXWH6xee2StZtX_bumU_iJTHB5eoXFvnAOlFpRHk6brGlgTFzPm6cwN8cMxv6nB-k3jCx-1trLmwoejAzTV9xLBuHrBhReDIaTh2T1yUwZDHQ3xQdBkuSSevo7CEQjPTDsFbK7R6H1U1uyaPMlHIdCVNQLCPWhvlWgNOR7vfM2t7Z6oXyWa8FWnBTb6oOaW1_4NkUO-ScxOuMQDz9wDqMe6xNLivsh_DDw_GLw4aoTzso2a6I9QqUdbWZ6uVqMLVmLKLuVlc985S35Z7MPqjfBgfMJ7dnNlMB7hD8YwA8dMIHLCESmY9_Ivoipq1Gg
+```
+
+### Отзыв `OAuth2.0`-разрешений
+
+Производится через консоль аккаунта, которая расположена по адресу: `{server-root}/realms/{realm-name}/account`:
+
+```bash
+http://localhost:8080/realms/myrealm/account
+```
+
+Отзыв выполняется в разделе `Applications` по кнопке `Remove access` соответствующего приложения.
+
+---
+
+## Три стратегии ограничения доступа у `Access Token`
+
+1. **Audience** - указывается список поставщиков ресурсов, которые могут принять данный `Access Token`;
+2. **Roles** - путём выдачи клиенту ролей возможно задать, к каким ролям приложение будет иметь доступ, выступая от имени этого клиента;
+3. **Scope** - клиенту назначены определенные области видимости и приложение имеет доступ только к указанному списку областей. Кроме этого,
+   когда приложению требуется согласие пользователя на доступ, то пользователь должен выдать доступ и к области видимости.
+
+---
+
+### 1. Стратегия ограничения доступа `Audience`
+
+Изначально токен доступа, выданный фронтовой части приложения, не включает `backend` в `audience`. Но секретные данные всё равно выдаются,
+потому что в параметре `verify-token-audience` файла [keycloak.json](applications/ch5/backend/keycloak.json) установлено значение `false`.
+Поменяем его на `true` и после перезапуска бэкенд-приложения секретная часть уже не выдаётся (`Access denied`) по причине того, что токен
+доступа теперь отвергается.
+
+Добавим `audience` вручную через `protocol mapper`. Для этого создадим нового клиента с именем `oauth-playground`:
+
+![520_audience_1.png](img/520_audience_1.png)
+
+Т.к. клиент `oauth-playground` используется бэкендом и не используется для получения токенов, то параметры `Standard flow`
+и `Direct access grants` можно отключить:
+
+![521_audience_2.png](img/520_audience_2.png)
+
+![523_audience_3.png](img/520_audience_3.png)
+
+В области видимости `oauth-playground-dedicate` следует создать новый `mapper`:
+
+![524_audience_4.png](img/520_audience_4.png)
+
+![525_audience_5.png](img/520_audience_5.png)
+
+Выбрать тип `Audience`:
+
+![526_audience_6.png](img/520_audience_6.png)
+
+И включить `Add to access token`:
+
+![527_audience_7.png](img/520_audience_7.png)
+
+После получения нового токена секретные данные станут доступны:
+
+![528_audience_8.png](img/520_audience_8.png)
+
+---
+
+### 2. Стратегия ограничения доступа `Roles`
+
+Роли позволяют настроить разрешения для приложения посредством указания, какие роли включаются в токен доступа для приложения.
+
+В поле `aud` токена доступа присутствует значение `account`:
+
+![531_roles_1.png](img/530_roles_1.png)
+
+Это происходит потому, что по-умолчанию у клиента в область видимости попадают все роли, а у пользователя по-умолчанию есть несколько
+клиентских ролей для учетной записи клиента, которые предоставляют пользователю доступ к консоли учетной записи Keycloak.
+
+Посредством `role mapping` можно настроить разрешения, предоставляемые пользователю ролью.
+
+Клиент не имеет ролей, назначенных напрямую (?), но имеет область видимости для набора ролей, контролируя какие роли могут быть включены в
+токены, отправляемые клиенту.
+
+Т.о. роли, включаемые в токены, представляют собой пересечение ролей пользователя и ролей, которые разрешено использовать клиенту:
+
+![532_roles_2.png](img/530_roles_2.png)
+
+Для удобства пользования по-умолчанию все роли пользователя включаются в токен (это сделано, чтобы не пришлось каждый раз вручную включать
+все роли). Выключим эту настройку (`Full scope allowed`):
+
+![541_roles_0.png](img/540_roles_1.png)
+
+![542_roles_1.png](img/540_roles_2.png)
+
+После этого в токене доступа уже нет никаких ролей, а требование `aud` ("audience") теперь включает только
+клиент `oauth-backend` (`account`, `realm_access` и `resource_access` уже не отображаются):
+
+<table>
+<tr align="center">
+<td> <b>Full scope allowed == true</b> </td> <td> <b>Full scope allowed == false</b> </td>
+</tr>
+<tr  valign="top">
+<td>
+
+```json
+{
+  "exp": 1727023439,
+  "iat": 1727023139,
+  "auth_time": 1727020324,
+  "jti": "78176305-4b33-4458-bae7-e92aa4c658f6",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": [
+    "oauth-backend",
+    "account"
+  ],
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "d78f15ca-88e9-4281-9c28-2ce6e5fec789",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "realm_access": {
+    "roles": [
+      "default-roles-myrealm",
+      "offline_access",
+      "uma_authorization",
+      "myrole"
+    ]
+  },
+  "resource_access": {
+    "account": {
+      "roles": [
+        "manage-account",
+        "manage-account-links",
+        "view-profile"
+      ]
+    }
+  },
+  "scope": "albums profile email",
+  "sid": "d78f15ca-88e9-4281-9c28-2ce6e5fec789",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+<td>
+
+```json
+{
+  "exp": 1727029665,
+  "iat": 1727029365,
+  "auth_time": 1727029365,
+  "jti": "af1220b5-2825-47b4-a8e9-c8fbbf057d78",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "acr": "1",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "scope": "albums profile email",
+  "sid": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+</tr>
+</table>
+
+При попытке получить секретные данные получим отказ:
+
+![543_roles_2.png](img/540_roles_3.png)
+
+Это происходит потому, что сервис разрешает только запросы, включающие роль `myrole`.
+
+#### [Вариант 1: Назначение роли клиенту напрямую](#variant-1)
+
+Клиент может иметь доступ к одной или более клиентских областей видимости.
+
+Это настраивается через закладку `Client scopes` клиента.
+
+Добавим клиенту `oauth-client` в область видимости `oauth-playground-dedicated` роль `myrole`:
+
+![550_roles_for_client_1.png](img/550_roles_for_client_1.png)
+
+![551_roles_for_client_2.png](img/550_roles_for_client_2.png)
+
+![552_roles_for_client_3.png](img/550_roles_for_client_3.png)
+
+![553_roles_for_client_4.png](img/550_roles_for_client_4.png)
+
+Теперь токен доступа содержит роль `myrole` в `realm_access`:
+
+<table>
+<tr align="center">
+<td> <b>Без роли `myrole`</b> </td> <td> <b>С ролью `myrole`</b> </td>
+</tr>
+<tr  valign="top">
+<td>
+
+```json
+{
+  "exp": 1727029665,
+  "iat": 1727029365,
+  "auth_time": 1727029365,
+  "jti": "af1220b5-2825-47b4-a8e9-c8fbbf057d78",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "acr": "1",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "scope": "albums profile email",
+  "sid": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+<td>
+
+```json
+{
+  "exp": 1727031462,
+  "iat": 1727031162,
+  "auth_time": 1727029365,
+  "jti": "aca9af6a-184f-4242-97cb-def4fdceada9",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "realm_access": {
+    "roles": [
+      "myrole"
+    ]
+  },
+  "scope": "albums profile email",
+  "sid": "4ffc23f9-4810-4498-819f-253e6c68acd5",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+</tr>
+</table>
+
+И такой токен позволит получить секретные данные:
+
+![554_roles_for_client_5.png](img/550_roles_for_client_5.png)
+
+#### [Вариант 2: Назначение роли клиенту через его область видимости](#variant-2)
+
+Область видимости клиента может иметь область видимости для ролей.
+
+> Для продолжения следует удалить роль `myrole`, назначенную клиенту `oauth-playground` при реализации [**Варианта 1**](#вариант-1-назначение-роли-клиенту-напрямую).
+
+Создать новую клиентскую область видимости:
+
+![560_roles_for_client_scope_1.png](img/560_roles_for_client_scope_1.png)
+
+Достаточно задать имя области видимости - `myrole`:
+
+![561_roles_for_client_scope_2.png](img/560_roles_for_client_scope_2.png)
+
+На закладке `Scope` назначить область видимости на роль `myrole`:
+
+![562_roles_for_client_scope_3.png](img/560_roles_for_client_scope_3.png)
+
+![563_roles_for_client_scope_4.png](img/560_roles_for_client_scope_4.png)
+
+Теперь клиентской области видимости назначена область видимости на роль `myrole`:
+
+![564_roles_for_client_scope_5.png](img/560_roles_for_client_scope_5.png)
+
+Теперь можно добавить эту клиентскую область видимости клиенту в качестве опциональной (т.е. запрашиваемой явно).
+
+Для этого на закладке `Client scopes` клиента `oauth-playground` нажатием кнопки `Add client scope` выбираем роль `myrole` и нажатием кнопки
+`Add` и `Optional` добавляем её в клиентскую область видимости:
+
+![565_roles_for_client_scope_6.png](img/560_roles_for_client_scope_6.png)
+
+![566_roles_for_client_scope_7.png](img/560_roles_for_client_scope_7.png)
+
+![567_roles_for_client_scope_8.png](img/560_roles_for_client_scope_8.png)
+
+Т.к. роль `myrole` является опциональной и будет добавлена в токен только если клиент явно запросит область видимости `myrole`,
+то клиенту следует задать параметр scope=`myrole`:
+
+![568_roles_for_client_scope_9.png](img/560_roles_for_client_scope_9.png)
+
+Теперь получаемый токен доступа будет содержать роль `myrole` в секции `reaml_access`:
+
+<table>
+<tr align="center">
+<td> <b>Без области видимости `myrole`</b> </td> <td> <b>С областью видимости `myrole` (scope == `myrole`)</b> </td>
+</tr>
+<tr  valign="top">
+<td>
+
+```json
+{
+  "exp": 1727042228,
+  "iat": 1727041928,
+  "auth_time": 1727041927,
+  "jti": "dd3be377-2481-44c8-9f10-00b4b7ea2f61",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "af02b40a-8bbf-480b-8850-e697d115f2a8",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "scope": "albums profile email",
+  "sid": "af02b40a-8bbf-480b-8850-e697d115f2a8",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+<td>
+
+```json
+{
+  "exp": 1727042904,
+  "iat": 1727042604,
+  "auth_time": 1727041927,
+  "jti": "d2056961-c5e5-4b94-b7ea-2b713c3c6b81",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "af02b40a-8bbf-480b-8850-e697d115f2a8",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "realm_access": {
+    "roles": [
+      "myrole"
+    ]
+  },
+  "scope": "myrole profile email",
+  "sid": "af02b40a-8bbf-480b-8850-e697d115f2a8",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+</td>
+</tr>
+</table>
+
+Это, в свою очередь, позволит получить доступ к секретным данным:
+
+![568_roles_for_client_scope_9.png](img/560_roles_for_client_scope_10.png)
+
+
+---
+
+### 3. Стратегия ограничения доступа `Scope`
+
+Для ограничения доступа, выдаваемого токеном, можно использовать области видимости.
+
+Прямое применение областей видимости является дефолтным механизмом OAuth2.0 для ограничения разрешений токена доступа.
+Использование областей видимости особенно полезно при работе со сторонними приложениями, когда пользователь должен дать согласие
+на выдачу приложению доступа к ресурсам от имени самого пользователя.
+
+В Keycloak область видимости OAuth2.0 соответствует клиентской области видимости.
+
+Создадим три области видимости - `albums:view`, `albums:create` и `albums:delete`:
+
+| `albums:view`                             | `albums:create`                           | `albums:delete`                           |
+|-------------------------------------------|-------------------------------------------|-------------------------------------------|
+| ![570_scopes_1.png](img/570_scopes_1.png) | ![571_scopes_2.png](img/570_scopes_2.png) | ![572_scopes_3.png](img/570_scopes_3.png) |
+
+Добавим клиенту `oauth-playground` созданные клиентские области видимости:
+
+![573_scopes_4.png](img/570_scopes_4.png)
+
+![574_scopes_5.png](img/570_scopes_5.png)
+
+Т.к. мы предполагаем, что приложение всегда требует просмотра альбомов, то области `albums:view` мы назначим **дефолтный** тип,
+а областям `albums:create` и `albums:delete` - **опциональный**, потому что возможность создания и удаления альбомов у нас считается
+необязательной:
+
+![575_scopes_6.png](img/570_scopes_6.png)
+
+Такой подход называется "**инкрементальной авторизацией**", поскольку приложение запрашивает дополнительные разрешения только тогда, когда
+пользователь начинает использовать дополнительную функциональность.
+
+Кроме того, следует убедиться, что в настройках пользователя `oauth-playground` в настройках установлен признак `Consent Required`:
+
+![576_scopes_7.png](img/570_scopes_7.png)
+
+Авторизационный запрос следует отправить без указания параметра `scope`:
+
+![577_scopes_8.png](img/570_scopes_8.png)
+
+Keycloak попросит подтвердить выдачу разрешения на предоставление приложению `oauth-playground` разрешения на **просмотр
+фотоальбомов**:
+
+![579_scopes_10.png](img/570_scopes_10.png)
+
+После подтверждения будет получен токен доступа, содержащий разрешение `albums:view` в параметре `scope`:
+
+```json
+{
+  ...
+  "scope": "profile email albums:view",
+  ...
+}
+```
+
+Если пользователю требуется разрешение на **создание фотоальбомов**, то приложения должно явно запросить опциональную область
+видимости `albums:create`:
+
+![579_scopes_11.png](img/570_scopes_11.png)
+
+Keycloak запросит соответствующее подтверждение у пользователя:
+
+![579_scopes_12.png](img/570_scopes_12.png)
+
+И, в случае одобрения, вернёт токен доступа, содержащий в параметре `scope` не только разрешение `albums:view`, но и `albums:create`:
+
+```json
+{
+  ...
+  "scope": "albums:create profile email albums:view",
+  ...
+}
+```
+
+Аналогично можно запросить разрешение на **удаление фотоальбомов**:
+
+![579_scopes_13.png](img/570_scopes_13.png)
+
+![579_scopes_14.png](img/570_scopes_14.png)
+
+И, в случае одобрения, получить токен доступа, содержащий в параметре `scope` не только разрешение `albums:view`, но и
+разрешение `albums:delete`:
+
+```json
+{
+  ...
+  "scope": "profile email albums:view albums:delete",
+  ...
+}
+```
+
+---
+
+## Валидация токенов доступа
+
+Возможна двумя способами:
+
+- вызов `Token Introspection Endpoint` - способ простой, и, кроме того, дающий приложению меньшую связность с Keycloak, как с сервером
+  авторизации;
+- непосредственная верификация токена.
+
+### Валидация токена доступа с помощью `Token Introspection Endpoint`
+
+Является стандартной для OAuth2.0 точкой доступа, позволяющей запросить у сервера авторизации сведения о
+состоянии токена, а также о разрешениях, ассоциированных с токеном. Кроме того, позволяет не хранить всю информацию о токене в самом
+токене, а токен представляет собой скорее ссылку на информацию.
+Недостатком использования `Token Introspection Endpoint` является то, что вносится дополнительная задержка в процесс обработки запроса,
+а также создаётся дополнительная нагрузка на сервер авторизации. Общим подходом является кэширование верифицированного токена с целью
+предотвращения повторной валидации. Время между повторными валидациями токена д.б. относительно коротким, в пределах нескольких минут.
+
+Для выполнения запроса к `Token Introspection Endpoint` необходимы учётные данные для нашего `oauth-backend` клиента и сам закодированный
+токен доступа.
+
+В настройках клиента `oauth-backend` следует включить `Client authentication` и сохранить изменения:
+
+![580_validation_1.png](img/580_validation_1.png)
+
+Затем в настройках этого же клиента на закладке `Credentials` скопировать значение секрета клиента:
+
+![580_validation_2.png](img/580_validation_2.png)
+
+Значение секрета сохранить в переменной окружения:
+
+```bash
+export SECRET=miEtKqXVw09f5m0O8uJKcgR1zpaLP3ey
+```
+
+```bash
+echo $SECRET
+```
+
+Далее следует получить новый токен доступа:
+
+![580_validation_3.png](img/580_validation_3.png)
+
+```json
+{
+  "exp": 1727094575,
+  "iat": 1727094275,
+  "auth_time": 1727091827,
+  "jti": "968d896f-de1f-411f-b3bd-386ca6c8f093",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "a0bbf7ce-e936-4d0b-b86f-6479ff61c3ba",
+  "acr": "0",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "scope": "profile email albums:view",
+  "sid": "a0bbf7ce-e936-4d0b-b86f-6479ff61c3ba",
+  "email_verified": true,
+  "name": "UserFirstName2 UserLastName2",
+  "preferred_username": "keycloak",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org"
+}
+```
+
+В секции `Encoded` отображается закодированный в `base64` токен доступа:
+
+![580_validation_4.png](img/580_validation_4.png)
+
+Аналогично секрету, сохраним значение зашифрованного токена в переменной окружения:
+
+```bash
+export TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjcxMDY5NTEsImlhdCI6MTcyNzEwNjY1MSwiYXV0aF90aW1lIjoxNzI3MTA2NjUxLCJqdGkiOiJmNTMxZjJjYy1mNmJjLTQ4Y2ItOTdjMS0yMTc3ZDY2MjNhNGQiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL215cmVhbG0iLCJhdWQiOiJvYXV0aC1iYWNrZW5kIiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoib2F1dGgtcGxheWdyb3VuZCIsInNlc3Npb25fc3RhdGUiOiI4NzVhOGZiNS1lZjMzLTQ5MmQtYWVmMi0yMjZkMGI0ZmM5MDgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCJdLCJzY29wZSI6InByb2ZpbGUgZW1haWwgYWxidW1zOnZpZXciLCJzaWQiOiI4NzVhOGZiNS1lZjMzLTQ5MmQtYWVmMi0yMjZkMGI0ZmM5MDgiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IlVzZXJGaXJzdE5hbWUyIFVzZXJMYXN0TmFtZTIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJrZXljbG9hayIsImdpdmVuX25hbWUiOiJVc2VyRmlyc3ROYW1lMiIsImZhbWlseV9uYW1lIjoiVXNlckxhc3ROYW1lMiIsInBpY3R1cmUiOiJodHRwczovLzU5LmltZy5hdml0by5zdC9hdmF0YXIvc29jaWFsLzI1NngyNTYvNDkyNTExMzI1OS5qcGciLCJlbWFpbCI6ImtleWNsb2FrMkBrZXljbG9hay5vcmcifQ.crmU6nDohqoutD9OXcV3O-tpjtvAppioSrM_l-cA5NER3c1fp-5jPsIjpmY9iHzpAsEuGaYsot1xdHCidsum3dtatL37be3p0RZ9avfuIPTcYRmvssyUQSGhShHDsfU-0-Vc7e3g-zQ5ow3OCekOeiWHQDu-o_WqzJPdRH9c7ogykCPinQTZCrjeN52WbUx1-Oo26W5AsESALRAX2RK-eukoEfPQDixKwUccUHObNEh5ywbkKWY0bLJiL56bvdwm-Dkh7BYsBFLoLWPepVMzSH74o58DzAUXLW-qlVwbkvA2TcH0_DxAZCiReqEIw1ZcJytuZllL5sDCN-NvFwC8-Q
+```
+
+```bash
+echo $TOKEN
+```
+
+Вызовем `Token Introspection Endpoint`:
+
+```bash
+curl --data "client_id=oauth-backend&client_secret=$SECRET&token=$TOKEN" http://localhost:8080/realms/myrealm/protocol/openid-connect/token/introspect | jq
+```
+
+```json
+{
+  "exp": 1727106951,
+  "iat": 1727106651,
+  "auth_time": 1727106651,
+  "jti": "f531f2cc-f6bc-48cb-97c1-2177d6623a4d",
+  "iss": "http://localhost:8080/realms/myrealm",
+  "aud": "oauth-backend",
+  "sub": "5ab16a86-6977-41f8-a50c-735b89ecd812",
+  "typ": "Bearer",
+  "azp": "oauth-playground",
+  "session_state": "875a8fb5-ef33-492d-aef2-226d0b4fc908",
+  "name": "UserFirstName2 UserLastName2",
+  "given_name": "UserFirstName2",
+  "family_name": "UserLastName2",
+  "preferred_username": "keycloak",
+  "picture": "https://59.img.avito.st/avatar/social/256x256/4925113259.jpg",
+  "email": "keycloak2@keycloak.org",
+  "email_verified": true,
+  "acr": "1",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "scope": "profile email albums:view",
+  "sid": "875a8fb5-ef33-492d-aef2-226d0b4fc908",
+  "client_id": "oauth-playground",
+  "username": "keycloak",
+  "active": true
+}
+```
+
+### Прямая валидация токена доступа в приложении
+
+Состоит из следующих шагов:
+
+1. Получить публичные ключи из `JWKS (JSON Web Key Set)`-точки доступа, предоставляемой Keycloak;
+2. Верифицировать подпись токена доступа;
+3. Проверить, что срок действия токена доступа не истек;
+4. Верифицировать издателя, `audience` и тип токена;
+5. Проверить разрешения, интересующие приложение.
+
+> Лучше реализовывать эти этапы имеющимися библиотеками!
+
+---
+
+
