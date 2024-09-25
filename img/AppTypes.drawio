@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36" version="24.7.16">
+  <diagram name="Страница — 1" id="RbWld8rIgeouNxnAP_4p">
+    <mxGraphModel dx="2266" dy="909" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-2" value="Type of application" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="150" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-3" value="Server-Side App" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="390" y="160" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-4" value="SPA" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="690" y="160" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-5" value="Type ofl REST API" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="310" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-6" value="Internal REST API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="320" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-7" value="External REST API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="410" y="320" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-8" value="Type of REST API" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="310" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-9" value="Internal REST API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="650" y="320" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-10" value="External REST API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="930" y="320" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-11" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-2" target="cnKoJ7Xpw2EujEBqeVrg-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="610" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-12" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-2" target="cnKoJ7Xpw2EujEBqeVrg-8">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="610" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-13" value="REST API invocation" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="440" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-14" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-8" target="cnKoJ7Xpw2EujEBqeVrg-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="610" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-15" value="REST API invoked directly" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="770" y="450" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-16" value="External REST API (separate host)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="450" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-17" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-13" target="cnKoJ7Xpw2EujEBqeVrg-21">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="830" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-18" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-13" target="cnKoJ7Xpw2EujEBqeVrg-22">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="1260" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-20" value="SPA with dedicated REST API" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="585" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-21" value="SPA with inermediary REST API" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="770" y="510" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-22" value="SPA with external REST API" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="510" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cnKoJ7Xpw2EujEBqeVrg-23" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnKoJ7Xpw2EujEBqeVrg-8" target="cnKoJ7Xpw2EujEBqeVrg-20">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="490" as="sourcePoint" />
+            <mxPoint x="610" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

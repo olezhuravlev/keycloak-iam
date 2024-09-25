@@ -103,7 +103,7 @@ http://localhost:8080/realms/myrealm/account/#/
 <tr align="center">
 <td> <b>ID Token</b> </td> <td> <b>Access Token</b> </td>
 </tr>
-<tr  valign="top">
+<tr valign="top">
 <td>
 
 ```json
@@ -448,7 +448,7 @@ curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
     - `token` -
 
 > Авторизационнй код имеет вид:
-> 
+>
 > `code=2f9bcd88-25c5-4f80-8195-29e1779a7bda.4f61dc0c-0dd6-4f89-adec-de3d0a45cdc7.8088567f-afe6-4d48-8927-e9d2e7bcdc1b`
 > и используется приложением для получения `ID Token` и `Refresh Token`.
 
@@ -770,7 +770,7 @@ scope=openid
 
 <table>
 <tr align="center"><td><b>"ID Token" без ролей</b></td><td><b>"ID Token" с ролями</b></td></tr>
-<tr  valign="top"><td>
+<tr valign="top"><td>
 
 ```json
 {
@@ -1232,7 +1232,7 @@ http://localhost:8080/realms/myrealm/account
 <tr align="center">
 <td> <b>Full scope allowed == true</b> </td> <td> <b>Full scope allowed == false</b> </td>
 </tr>
-<tr  valign="top">
+<tr valign="top">
 <td>
 
 ```json
@@ -1346,7 +1346,7 @@ http://localhost:8080/realms/myrealm/account
 <tr align="center">
 <td> <b>Без роли `myrole`</b> </td> <td> <b>С ролью `myrole`</b> </td>
 </tr>
-<tr  valign="top">
+<tr valign="top">
 <td>
 
 ```json
@@ -1425,7 +1425,8 @@ http://localhost:8080/realms/myrealm/account
 
 Область видимости клиента может иметь область видимости для ролей.
 
-> Для продолжения следует удалить роль `myrole`, назначенную клиенту `oauth-playground` при реализации [**Варианта 1**](#вариант-1-назначение-роли-клиенту-напрямую).
+> Для продолжения следует удалить роль `myrole`, назначенную клиенту `oauth-playground` при реализации [**Варианта 1
+**](#вариант-1-назначение-роли-клиенту-напрямую).
 
 Создать новую клиентскую область видимости:
 
@@ -1467,7 +1468,7 @@ http://localhost:8080/realms/myrealm/account
 <tr align="center">
 <td> <b>Без области видимости `myrole`</b> </td> <td> <b>С областью видимости `myrole` (scope == `myrole`)</b> </td>
 </tr>
-<tr  valign="top">
+<tr valign="top">
 <td>
 
 ```json
@@ -1769,6 +1770,429 @@ curl --data "client_id=oauth-backend&client_secret=$SECRET&token=$TOKEN" http://
 5. Проверить разрешения, интересующие приложение.
 
 > Лучше реализовывать эти этапы имеющимися библиотеками!
+
+---
+
+---
+
+https://developer.okta.com/docs/concepts/oauth-openid/
+
+---
+
+---
+
+# 6. Работа с разными типами приложений
+
+**Внутреннее приложение (First-party Application)** обладает следующими признаками:
+
+- приложением владеет компания;
+- неважно, кто его разрабатывает, где хостится приложение, является оно отдельным или Saas-приложением;
+- не нужно спрашивать пользователя, даёт ли он разрешение приложению на доступ к данным, т.к. приложение является доверенным и
+  администратор, регистрирующий приложение в Keycloak, может сразу одобрить доступ приложения к данным от имени пользователя (опция `Consent
+  required` клиента отключена);
+- от пользователя требуется только аутентификация.
+
+**Внешнее приложение (Third-party Application)** обладает следующими признаками:
+
+- приложением владеет и управляет другая компания;
+- от пользователя требуется дать приложению разрешение на доступ к данным (опция `Consent required` клиента включена);
+- от пользователя требуется аутентификация.
+
+---
+
+## 6.1 Обеспечение безопасности веб-приложений
+
+Рассматривая архитектуру приложения следует ответить на следующие вопросы:
+
+- Server-Side Application или Single-Page Application (SPA)?
+- Используется ли REST API?
+- Если используется REST API, то является оно частью приложения или внешним?
+
+**Proof Key for Code Exchange (PKCE)** - расширение OAuth2.0, связывающее код авторизации с приложением, отправляющим авторизационный
+запрос. Такая связка предотвращает компрометацию кода авторизации в случае его перехвата.
+
+### Чего следует избегать при портировании существующих приложений на использование Keycloak:
+
+- сохранение страницы логина в существующем приложении с целью обмена полученных учётных данных на токены путем использования
+  гранта `Resource Owner Password Credential` для получения токена. Это подобно интеграции приложения с `LDAP`-сервером.
+
+  **Следует избегать такого подхода**, т.к.:
+    - сбор учётных данных в приложении рискует скомпрометировать доступ ко всем приложениям, которые этим приложением использовались;
+    - пользователи склонны использовать одни и те же пароли;
+    - нет возможности использовать более сильные виды аутентификации (#, двухфакторную аутентификацию);
+    - нет возможности использовать все преимущества Keycloak (#, SSO, Social Login);
+
+- встраивание страницы логина Keycloak в iframe внутри приложения.
+
+  **Следует избегать такого подхода**, т.к.:
+    - встроенная в приложение страница логина м.б. подвержена уязвимостям, присутствующим в самом приложении;
+    - пользователям сложно понять, откуда пришла страница логина и пользователям будет сложно доверять такой странице и вводить в неё
+      учётные данные;
+    - посторонние `cookie` часто используются для отслеживания переходов между несколькими сайтами, а браузеры становятся всё более
+      агрессивными в блокировке сторонних `cookie`, что может привести к тому, что страница логина Keycloak не будет иметь доступа
+      к `cookie`, необходимым для её работы.
+
+Как результат, следует свыкнуться с фактом, что **приложение должно перенаправлять пользователя на доверенного поставщика аутентификации**,
+особенно в случае `SSO`-сценариев. Это становится все более и более привычным подходом для пользователей.
+
+Примером являются страницы логина Google и Amazon - они не встроены в само приложение и являются внешними страницами логина:
+
+![GoogleAndAmazon_login_pages.png](img/GoogleAndAmazon_login_pages.png)
+
+---
+
+### Защита серверного веб-приложения
+
+1. В Keycloak следует зарегистрировать конфиденциального клиента, что позволит исключить вероятность утечки авторизационного кода;
+2. Следует использовать `PKCE`-расширение (Proof Key for Code Exchange), что обеспечит защиту от других типов атак;
+3. Необходимо настроить правильное URI-перенаправление для клиента (`redirect_uri`).
+
+> Если не настроить `redirect_uri`, то создастся т.наз. "открытое перенаправление".
+> Открытое перенаправление может использоваться при атаке, заставляющей пользователя поверить, что он нажимает на ссылку на доверенный сайт.
+>
+> Например, если злоумышленник отправляет URL вида `https://trusted-site.com/?redirect_uri=https://attacker.com` то пользователь может
+> не заметить, что в указанном доменном имени доверенного сайта перенаправление ведет на атакующий сайт, и нажать ссылку.
+>
+> Без настроенного `redirect_uri` Keycloak в итоге перенаправит пользователя на сайт злоумышленника.
+
+### Защита разных типов веб-приложений
+
+<table>
+<tr align="center"><td>Серверное веб-приложение</td><td>SPA со специальным REST API</td><td>SPA с промежуточным REST API</td><td>SPA с внешним REST API</td></tr>
+<tr align="center"><td>
+
+![600_serverside_webapp_security.png](img/600_serverside_webapp_security.png)</td><td>
+
+![610_SPA_dedicated_RESTAPI.png](img/610_SPA_dedicated_RESTAPI.png)</td><td>
+
+![620_SPA_inter_RESTAPI.png](img/620_SPA_inter_RESTAPI.png)</td><td>
+
+![630_SPA_external_RESTAPI.png](img/630_SPA_external_RESTAPI.png)</td></tr>
+
+<tr valign="top"><td>
+
+#### Приложение использует авторизационный код для получения от Keycloak `ID`-токена и установления `HTTP`-сессии:
+
+1. Веб-сервер перенаправляет браузер на страницу логина Keycloak;
+2. Пользователь аутентифицируется в Keycloak;
+3. Серверному веб-приложению (на `redirect_uri`?) возвращается авторизационный код;
+4. Веб-приложение обменивает авторизационный код на токены, используя учетные данные, зарегистрированного клиента Keycloak;
+5. Приложение может непосредственно распарсить и проверить полученный от Keycloak `ID`-токен для получения информации об
+   аутентифицированном пользователе и установить аутентифицированное `http`-соединение;
+6. Все запросы от браузера теперь содержать в себе `cookie`, идентифицирующие `HTTP`-сессию.
+
+> Серверные приложения могут использовать `SAML 2.0` вместо `OpenID Connect`, но последний рекомендуется по причине простоты работы с ним.
+</td><td>
+
+#### Защищается подобно серверному веб-приложению:
+
+1. Пользователь жмет кнопку логина, отправляющую запрос на веб-сервер;
+2. Веб-сервер перенаправляет браузер пользователя на страницу логина Keycloak;
+3. Пользователь аутентифицируется в Keycloak;
+4. Авторизационный код возвращается веб-серверу;
+5. Веб-сервер обменивает авторизационный код на токены;
+6. Приложение получает `ID`-токен напрямую от Keycloak, парсит и верифицирует его, получает из него информацию об аутентифицированном
+   пользователе и устанавливает аутентифицированную `HTTP`-сессию;
+
+</td><td>
+
+#### Даёт возможность использовать конфиденциального клиента, а токены недоступны напрямую в браузере, снижая риск утечки токенов (особенно токена обновления):
+
+1. Пользователь жмет кнопку логина, отправляющую запрос на веб-сервер;
+2. Веб-сервер перенаправляет браузер пользователя на страницу логина Keycloak;
+3. Пользователь аутентифицируется в Keycloak;
+4. Авторизационный код возвращается веб-серверу;
+5. Веб-сервер обменивает авторизационный код на токены;
+6. Приложение получает `ID`-токен напрямую от Keycloak, парсит и верифицирует его, получает из него информацию об аутентифицированном
+   пользователе и устанавливает аутентифицированную `HTTP`-сессию. И `Refresh-` и `Access-`токены хранятся внутри HTTP-сессии;
+7. Запросы от SPA к REST API содержат `cookie` `HTTP`-сессии;
+8. Веб-сервер получает токен доступа от HTTP-сессии и включает его в запросы к внешнему RESP API;
+9. Веб-сервер возвращает ответ SPA, включая в него `cookie` `HTTP`-сессии;
+
+> Промежуточный API размещен в том же домене, что и SPA. Такой тип SPA является реализацией шаблона `BFF`, повышающего безопасность,
+> делающего SPA проще и портативней, т.к. приложение взаимодействует не напрямую с внешними API, а с REST API, специально созданным для
+> обслуживания фронтендового SPA.
+>
+> Кроме того, браузеры не позволяют SPA вызывать REST API в другом домене без CORS. А поскольку SPA отправляет запросы через
+> промежуточный REST API в этом же домене, то не нужно заботиться о CORS.
+
+</td><td>
+
+#### Код авторизации пересылается непосредственно из SPA с применением публичного клиента, зарегистрированного в Keycloak:
+
+1. SPA перенаправляет пользователя на страницу логина Keycloak;
+2. После того как пользователь аутентифицирован, авторизационный код возвращается в SPA;
+3. SPA обменивает авторизационный код на токены.
+
+> Т.к. SPA работает в браузере, то нет возможности обеспечить безопасность учётных записей клиента и поэтому используется публичный клиент,
+> зарегистрированный в Keycloak;
+
+4. SPA имеет непосредственный доступ к `Access Token` и включает его в запрос к REST API;
+5. REST API добавляет CORS-заголовки в ответ (иначе браузер не даст SPA прочитать ответ).
+
+> Из-за того, что токены доступны непосредственно в браузере, повышается риск их утечки. Это м.б. компенсировано следующим:
+>
+> - короткий срок жизни `Refresh Token` (минуты), но длинное время жизни сеанса единого входа (дни);
+> - ротация `Refresh Token`, когда попытка его повторного применения приводит к инвалидации сеанса;
+> - использование `PKCE` для общедоступного клиента;
+> - хранение токенов в `window state` или в сеансе хранения `HTML5` (избегая при этом использования легкоугадываемых ключей,
+    вроде `window.sessionStorage.accessToken`);
+> - следовать рекомендациям проекта Open Web Application Security Project (OWASP) для защиты от XSS и других видов атак;
+> - не использовать сторонние скрипты в приложении.
+
+</td></tr>
+</table>
+
+---
+
+### Защита нативных (небраузерных) и мобильных приложений
+
+Следует избегать искушения реализовать страницу логина в самом приложении с целью использовать
+грант `OAuth 2.0 Resource Owner Password Credential` для последующего получения токенов т.к.:
+
+- приложение не должно иметь прямого доступа к учётным данным пользователя;
+- не получится использовать многие возможности, предоставляемые Keycloak.
+
+Использование авторизационного кода и `PKCE` является более безопасным и, кроме того, позволяет задействовать все возможности Keycloak.
+
+Такой подход подразумевает использование браузера для аутентификации в Keycloak и здесь доступны три решения:
+
+1. Встроенный `web view`. Нежелательный способ, т.к. обладает уязвимостями, которые м.б. использованы для перехвата учётных данных, а также
+   не позволяет реализовать SSO (т.к. нет разделяемых между разными приложениями `cookie`);
+2. Внешний агент пользователя (дефолтный браузер);
+3. Встроенная в приложение браузерная вкладка (доступна на некоторых платформах, таких как Android или iOS). Однако вредоносный код может в
+   приложении сымитировать страницу входа, выглядящую как вкладка браузера, и перехватить учётные данные.
+
+![640_native_app_security.png](img/640_native_app_security.png)
+
+1. Приложение открывается страницу логина внешнего браузера (или встроенной браузерной закладки);
+2. Пользователь аутентифицируется в Keycloak;
+3. Авторизационный код возвращается приложению;
+4. Приложение обменивает авторизационный код на токены.
+
+Четыре схемы возврата авторизационного кода в приложение (`OAuth2.0`):
+
+- **Заявленная HTTP-схема (Claimed HTTP-scheme)** - некоторые платформы позволяют приложению заявить HTTP-схему (путь, начинающийся
+  с `https://`), который откроет
+  URI
+  в приложении вместо того, чтобы открыть его в системном браузере;
+- **Пользовательская URI-схема (Custom URI-scheme)** - регистрируется в приложении и когда Keycloak перенаправляет на эту схему, то запрос
+  отправляется в
+  приложение. Такая схема должна соответствовать обратному порядку домена, которым владеет разработчик приложения (например, схема
+  `org.acme.app://oauth2/provider-name` соответствует доменному имени `app.acme.org`);
+- **Петлевой интерфейс (Loopback Interface)** - приложение м. запустить временный веб-сервер на случайном порту петлевого интерфейса,
+  а затем в качестве `redirect_URI` зарегистрировать `http://127.0.0.1/oauth2/providev-name`, чтобы перенаправить запрос на этот временный
+  веб-сервер.
+
+> _**Петлевой интерфейс**_ - это виртуальный интерфейс, который всегда доступен, пока работает хотя бы один из IP-интерфейсов сетевого
+> устройства и используется устройством для ссылки на самого себя (для связи с другими устройствами не используется).
+>
+> Задействует адрес `127.0.0.1`, известный также как `localhost`.
+>
+> Полезен для отладки, поскольку его IP-адрес всегда может быть проверен при включении любого другого интерфейса коммутатора.
+
+- **Специальный `'redirect_URI'`** - специальный адрес `urn:ietf:wg:oauth:2.0:oob` указывает Keycloak отобразить авторизационный
+  код, позволяя тем самым пользователю вручную его скопировать и вставить в приложение.
+
+#### Пример защиты нативного или мобильного приложения
+
+1. Зарегистрировать в Keycloak нового клиента с параметрами:
+
+- Client ID: cli
+- Client authentication: Off
+- Standard flow: Enabled
+- Valid Redirect URIs: http://127.0.0.1/callback
+
+2. Запустить [приложение](applications/ch6/app.js):
+
+```bash
+$ npm install
+...
+$ node app.js                                                                                                                                                                                                                                                                                                                   Chapter6|✚2 ✭1
+Listening on port: 34659
+```
+
+3. Аутентифицироваться в Keycloak:
+
+![641_native_app_security.png](img/650_native_app_security_1.png)
+
+4. После аутентификации страница больше не нужна и её можно закрыть:
+
+![650_native_app_security_2.png](img/650_native_app_security_2.png)
+
+5. Приложение получит авторизационный код и токен доступа:
+
+```bash 
+$ node app.js                                                                                                                                                                                                                                                                                                                   Chapter6|✚2 ✭1
+Listening on port: 34659
+
+Authorization Code: 27654663-d292-4da7-b6e8-13c524299836.f59ba1c2-73b8-4e41-8f68-8d86bcfe090b.f560c5da-f656-453c-bfa3-a223febffa77
+
+Access Token: eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjczNzcxMDgsImlhdCI6MTcyNzM3NjgwOCwiYXV0aF90aW1lIjoxNzI3Mzc2ODA4LCJqdGkiOiIyZGRiNDEwYi0wYTA3LTQ0MDUtODkyOS0xNjMwYzU4MzZiZDciLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL215cmVhbG0iLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiY2xpIiwic2Vzc2lvbl9zdGF0ZSI6ImY1OWJhMWMyLTczYjgtNGU0MS04ZjY4LThkODZiY2ZlMDkwYiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovLzEyNy4wLjAuMSJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1teXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIm15cm9sZSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6ImY1OWJhMWMyLTczYjgtNGU0MS04ZjY4LThkODZiY2ZlMDkwYiIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiVXNlckZpcnN0TmFtZTIgVXNlckxhc3ROYW1lMiIsInByZWZlcnJlZF91c2VybmFtZSI6ImtleWNsb2FrIiwiZ2l2ZW5fbmFtZSI6IlVzZXJGaXJzdE5hbWUyIiwiZmFtaWx5X25hbWUiOiJVc2VyTGFzdE5hbWUyIiwicGljdHVyZSI6Imh0dHBzOi8vNTkuaW1nLmF2aXRvLnN0L2F2YXRhci9zb2NpYWwvMjU2eDI1Ni80OTI1MTEzMjU5LmpwZyIsImVtYWlsIjoia2V5Y2xvYWsyQGtleWNsb2FrLm9yZyJ9.Ta4GR8QFtvN3bcfg2YrpxMc_bdQrNRTgODeVAc0QQmfW3MRa3X16yItVvDl5nssRKh0L1C8G13jBFblVdw-OC5K5Oq3sRowKisKNig9UKYWhGlgSkCxzZQPYCyyEZ7NcU9BIFewp9_Yeu-5ATP4CbYYhBbSQ34_HEP8ApKDr-FpPq-dlfN3aXdbdzPe3HrFPkJDw6U_HbbQ9pqjp-cmDffUiA5nTVTUMZBkIuSO2tVfir18hraXsxGIzPVUMhy8JM4h4fFUrVC4Um0LWGrhvZ13zIehl0JvDD-m_g4l3NiqHe2c8VR9cZG0eVcExaWUSP7i5MpsRLOB6ZDc7DT5nKg
+```
+
+---
+
+### Защита на устройствах с ограниченной возможностью ввода данных (#, SmartTV, приставки и пр.)
+
+Тип предоставления кода устройства работает с помощью приложения, показывающего короткий код, который
+пользователь вводит в специальную конечную точку на сервере авторизации на другом устройстве с помощью браузера. После ввода кода
+пользователю будет предложено войти в систему, если он еще не вошел в систему. После завершения приложение сможет получить код авторизации с
+сервера авторизации.
+
+#### Пример защиты на устройствах с ограниченной возможностью ввода данных
+
+1. Зарегистрировать в Keycloak нового клиента с параметрами:
+
+- Client ID: tv
+- Client authentication: Off
+- OAuth 2.0 Device Authorization Grant: Enabled
+
+2. Инициализировать процесс авторизации устройства (`Device Authorization Request`) и получить ответ:
+
+```bash
+curl --data "client_id=tv" http://localhost:8080/realms/myrealm/protocol/openid-connect/auth/device | jq
+```
+
+Ответ:
+
+```bash
+$ curl --data "client_id=tv" http://localhost:8080/realms/myrealm/protocol/openid-connect/auth/device | jq                                                                                                                                                                                                                      Chapter6|✚2 ✭6
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   286  100   274  100    12  87344   3825 --:--:-- --:--:-- --:--:-- 95333
+{
+  "device_code": "tmklWKCxCGEEFd6ZNMfCsjmUPAOpC7UMuR-a41U2cA8",
+  "user_code": "JFWE-UYUA",
+  "verification_uri": "http://localhost:8080/realms/myrealm/device",
+  "verification_uri_complete": "http://localhost:8080/realms/myrealm/device?user_code=JHCI-MPGJ",
+  "expires_in": 600,
+  "interval": 5
+}
+```
+
+3. Открыть в любом браузере любого устройства URI, указанный в `verification_uri` и ввести код, полученный в `user_code`:
+
+![660_smartTV_security_1.png](img/660_smartTV_security_1.png)
+
+4. Одобрить предоставление приложению необходимых разрешений:
+
+![660_smartTV_security_2.png](img/660_smartTV_security_2.png)
+
+5. Keycloak подтвердит успешность регистрации:
+
+![660_smartTV_security_3.png](img/660_smartTV_security_3.png)
+
+Окно браузера можно закрыть.
+
+6. Установить полученный `device_code` в переменную окружения:
+
+```bash
+export DEVICE_CODE="tmklWKCxCGEEFd6ZNMfCsjmUPAOpC7UMuR-a41U2cA8"
+```
+
+```bash
+$ echo $DEVICE_CODE
+tmklWKCxCGEEFd6ZNMfCsjmUPAOpC7UMuR-a41U2cA8
+```
+
+7. Теперь можно отправить запрос на получение токенов `Token Request`:
+
+```bash
+curl --data "grant_type=urn:ietf:params:oauth:grant-type:device_code" --data "client_id=tv" --data "device_code=$DEVICE_CODE" -X POST http://localhost:8080/realms/myrealm/protocol/openid-connect/token | jq
+```
+
+В ответ будут возвращены `Access Token` и `Refresh Token`:
+
+```bash
+$ curl --data "grant_type=urn:ietf:params:oauth:grant-type:device_code" --data "client_id=tv" --data "device_code=$DEVICE_CODE" -X POST http://localhost:8080/realms/myrealm/protocol/openid-connect/token | jq                                                                                                                 Chapter6|✚2 ✭6
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2546  100  2422  100   124   401k  21034 --:--:-- --:--:-- --:--:--  497k
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjczODE2NjMsImlhdCI6MTcyNzM4MTM2MywiYXV0aF90aW1lIjoxNzI3Mzc5ODU3LCJqdGkiOiI0YzkxNjllZi1mODQzLTRhODktODEyZi1lOTFmY2MwMGE5MTgiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL215cmVhbG0iLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidHYiLCJzZXNzaW9uX3N0YXRlIjoiNWMzMjg0MDAtZDc0Mi00ZGU4LWIwOGEtOTY3N2Q2NGFmNGRlIiwiYWNyIjoiMCIsImFsbG93ZWQtb3JpZ2lucyI6WyIvKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1teXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIm15cm9sZSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjVjMzI4NDAwLWQ3NDItNGRlOC1iMDhhLTk2NzdkNjRhZjRkZSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiVXNlckZpcnN0TmFtZTIgVXNlckxhc3ROYW1lMiIsInByZWZlcnJlZF91c2VybmFtZSI6ImtleWNsb2FrIiwiZ2l2ZW5fbmFtZSI6IlVzZXJGaXJzdE5hbWUyIiwiZmFtaWx5X25hbWUiOiJVc2VyTGFzdE5hbWUyIiwicGljdHVyZSI6Imh0dHBzOi8vNTkuaW1nLmF2aXRvLnN0L2F2YXRhci9zb2NpYWwvMjU2eDI1Ni80OTI1MTEzMjU5LmpwZyIsImVtYWlsIjoia2V5Y2xvYWsyQGtleWNsb2FrLm9yZyJ9.NFbD9QETKOTtNby9fTJK28F_NOyYcRnpo7oCglvfyaMopMNX2odi0Nt9yVO_HVln7d1YRtfwiMF7gT_aC5u8niAqOKKIv7nFKnD3My0mGGBjEBGdZ_nRMtIFP1QI8Gj2DaXN3GnqWhITNPrUENsVCKgMxBEEDsTDG9vlj4Czad_vxshGKSC6I9MdgIdFdVYKhTv2GiCpI3qaQxlrte-KFolnbA0hIeaU0tUeh8ZH5g2F1hYJkkIG7d1kRxNVW9jSbRyXEyui-mslb5xKJa_OONWOi0hn2pLrlongfPpA5F11FrQ-zEUN_cDfUtggcNZsouJm-6g2eex_xGK6hA3hzw",
+  "expires_in": 300,
+  "refresh_expires_in": 1735,
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxNWM0NGVkZS0zZTYxLTQwMjItODQyNC0wNmM0YTA3MWM4NzcifQ.eyJleHAiOjE3MjczODMwOTgsImlhdCI6MTcyNzM4MTM2MywianRpIjoiYzNkMDc1OGUtZGVmOS00M2FiLTg2ODAtMGNhZmI5NjQ1NmU1IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9teXJlYWxtIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9teXJlYWxtIiwic3ViIjoiNWFiMTZhODYtNjk3Ny00MWY4LWE1MGMtNzM1Yjg5ZWNkODEyIiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InR2Iiwic2Vzc2lvbl9zdGF0ZSI6IjVjMzI4NDAwLWQ3NDItNGRlOC1iMDhhLTk2NzdkNjRhZjRkZSIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjVjMzI4NDAwLWQ3NDItNGRlOC1iMDhhLTk2NzdkNjRhZjRkZSJ9.yVITj8ng6iU-DUcADTMDZ77IrbsajfYUWqy4v_khUqA",
+  "token_type": "Bearer",
+  "not-before-policy": 0,
+  "session_state": "5c328400-d742-4de8-b08a-9677d64af4de",
+  "scope": "profile email"
+}
+
+```
+
+---
+
+### Защита REST API и сервисов
+
+Когда приложение желает вызвать REST API защищенный Keycloak, то оно сначала получает токен доступа от Keycloak, а затем включает этот
+токен в авторизационный заголовок запроса, отправляемого на REST API:
+
+> Authorization: bearer eyJhbGciOiJSUzI1NiIsInR5c…
+
+REST API, получив такой заголовок, верифицирует его и принимает решение о предоставлении доступа.
+
+В микросервисной архитектуре такой подход позволяет расширять аутентификационный контекст, когда один сервис вызывает по цепочке другой:
+
+![670_ms_security.png](img/670_ms_security.png)
+
+Keycloak поддерживает сервисные аккаунты, позволяющие сервису получить токен от собственного имени путем использования типа грантов 'Client
+Credential'.
+
+#### Пример защиты REST API
+
+1. Создадим клиента Keycloak со следующими параметрами:
+
+- Client type: OpenID Connect
+- Client ID: service
+- Client authentication: On
+- Standard flow: Unchecked (не будет возможности получить токен используя авторизационный код)
+- Implicit Flow Enabled: Unchecked
+- Direct Access Grants Enabled: Unchecked
+- Service accounts roles: Checked (использовать грант `Client Credential` - позволяет получить токены от собственного имени путем
+  использования учетных данных клиента)
+
+![680_rest_api_security.png](img/680_rest_api_security_1.png)
+
+2. Скопируем секрет клиента и разместим его в переменной окружения:
+
+![680_rest_api_security_2.png](img/680_rest_api_security_2.png)
+
+```bash
+export SECRET="B9OMqOWwiMk0pqxbg9unlUMsGe4emDa7"
+```
+
+```bash
+$ echo $SECRET                                                                                                                                                                                                                                                                                                                  Chapter6|✚2 ✭9
+B9OMqOWwiMk0pqxbg9unlUMsGe4emDa7
+```
+
+3. Обменяем полученный секрет на `Bearer`-токен:
+
+```bash
+curl --data "client_id=service&client_secret=$SECRET&grant_type=client_credentials" http://localhost:8080/realms/myrealm/protocol/openid-connect/token | jq
+```
+
+Ответ, содержащий `Bearer`-токен:
+
+```bash
+$ curl --data "client_id=service&client_secret=$SECRET&grant_type=client_credentials" http://localhost:8080/realms/myrealm/protocol/openid-connect/token | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1487  100  1393  100    94   121k   8413 --:--:-- --:--:-- --:--:--  121k
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWDJ6VkowdjNPNmw0aHNDeVhUNzlkX2JQU2taYnJwOFZ2TzJ2MmRZIn0.eyJleHAiOjE3MjczODUzNjEsImlhdCI6MTcyNzM4NTA2MSwianRpIjoiYWE1YTU4MzYtY2VjZC00MmM1LThlYzctODk2OTJiZTdlZTUwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9teXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6Ijg4ZjMxZmI2LTM0ODQtNDA5Ni04NTFjLTI2MzUwZjIwNWZhZCIsInR5cCI6IkJlYXJlciIsImF6cCI6InNlcnZpY2UiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW15cmVhbG0iLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJjbGllbnRIb3N0IjoiMTcyLjI0LjAuMSIsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1zZXJ2aWNlIiwiY2xpZW50QWRkcmVzcyI6IjE3Mi4yNC4wLjEiLCJjbGllbnRfaWQiOiJzZXJ2aWNlIn0.DGcl1ymD07RqULRHbh6WwyyMzETS6SLzF70kXKFa5n9TroqB-GCplgXJeYM4UDcl2xjbu0OHDDPqyUA_n0srat2BoAcs8yX94uA8LD74MV2frG90EYbgF0pMA6b8XtYVHOT9KlcFwvEBgu_juq1wOCrmBoK2JwfE0T00qUwDf1q-UDBl70tADxmuond7PDIA2mqkqrRg4dLikM6-_wUga2tDoFAGLe-PvaRYv_CjY678jC30EYtDbSYsutf_0gJY6R_vSxATPp3tK7zEWbi03YQOlbYGQZOJRD9Z8gFMtyB-CI1XhAUcPjb3EG4ymsSicgZ4qqVObQm9d0WwZi9h3g",
+  "expires_in": 300,
+  "refresh_expires_in": 0,
+  "token_type": "Bearer",
+  "not-before-policy": 0,
+  "scope": "profile email"
+}
+```
+
+4. Сервис REST API получает такой токен в составе запроса и может верифицировать его непосредственно или
+   через `Token Introspection Endpoint`.
 
 ---
 
