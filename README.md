@@ -422,22 +422,22 @@ curl http://localhost:8080/realms/myrealm/.well-known/openid-configuration | jq
 
 #### [Будут возвращены URL](#keycloak-urls):
 
-| № | Точка доступа                         | URL                                                 | Назначение                                                                            |
-|---|---------------------------------------|-----------------------------------------------------|---------------------------------------------------------------------------------------|
-|   | Issuer URL                            | http://localhost:8080/realms/myrealm                | Корневой URL Keycloak                                                                 |
-|   | OIDC Provider Configuration           | /.well-known/openid-configuration                   |                                                                                       |
-|   | Registration Endpoint                 | /clients-registrations/openid-connect               |                                                                                       |
-| 1 | Authorization Endpoint                | `/protocol/openid-connect`/auth                     | Обращение `Authentication Request` за авторизацией                                    |
-|   | Device Authorization Endpoint         | `/protocol/openid-connect`/auth/device              |                                                                                       |
-| 2 | Token Endpoint                        | `/protocol/openid-connect`/token                    | URL для `Token Request` и `Refresh Request` для обмена `Authorization Code` на токены |
-|   | End Session Endpoint                  | `/protocol/openid-connect`/logout                   | URL для `Logout Request`                                                              |
-|   | JWKS URI                              | `/protocol/openid-connect`/certs                    | URL для получения публичных ключей Keycloak                                           |
-|   | Backchannel Authentication Endpoint   | `/protocol/openid-connect`/ext/ciba/auth            |                                                                                       |
-|   | Pushed Authorization Request Endpoint | `/protocol/openid-connect`/ext/par/request          |                                                                                       |
-|   | Check Session IFrame                  | `/protocol/openid-connect`/login-status-iframe.html |                                                                                       |
-|   | Revocation Endpoint                   | `/protocol/openid-connect`/revoke                   |                                                                                       |
-|   | Introspection Endpoint                | `/protocol/openid-connect`/token/introspect         | URL для верификации токена доступа                                                    |
-|   | Userinfo Endpoint                     | `/protocol/openid-connect`/userinfo                 | URL для получения информации об аутентифицированном пользователе (`UserInfo Request`) |
+| № | Точка доступа                         | URL                                                 | Назначение                                                                                   |
+|---|---------------------------------------|-----------------------------------------------------|----------------------------------------------------------------------------------------------|
+|   | Issuer URL                            | http://localhost:8080/realms/{REALM_NAME}           | Корневой URL Keycloak вернет публичный ключ, а также URL `token-service` и `account-service` |
+|   | OIDC Provider Configuration           | /.well-known/openid-configuration                   |                                                                                              |
+|   | Registration Endpoint                 | /clients-registrations/openid-connect               |                                                                                              |
+| 1 | Authorization Endpoint                | `/protocol/openid-connect`/auth                     | Обращение `Authentication Request` за авторизацией                                           |
+|   | Device Authorization Endpoint         | `/protocol/openid-connect`/auth/device              |                                                                                              |
+| 2 | Token Endpoint                        | `/protocol/openid-connect`/token                    | URL для `Token Request` и `Refresh Request` для обмена `Authorization Code` на токены        |
+|   | End Session Endpoint                  | `/protocol/openid-connect`/logout                   | URL для `Logout Request`                                                                     |
+|   | JWKS URI                              | `/protocol/openid-connect`/certs                    | URL для получения публичных ключей Keycloak                                                  |
+|   | Backchannel Authentication Endpoint   | `/protocol/openid-connect`/ext/ciba/auth            |                                                                                              |
+|   | Pushed Authorization Request Endpoint | `/protocol/openid-connect`/ext/par/request          |                                                                                              |
+|   | Check Session IFrame                  | `/protocol/openid-connect`/login-status-iframe.html |                                                                                              |
+|   | Revocation Endpoint                   | `/protocol/openid-connect`/revoke                   |                                                                                              |
+|   | Introspection Endpoint                | `/protocol/openid-connect`/token/introspect         | URL для верификации токена доступа                                                           |
+|   | Userinfo Endpoint                     | `/protocol/openid-connect`/userinfo                 | URL для получения информации об аутентифицированном пользователе (`UserInfo Request`)        |
 
 Кроме того, возвращаются:
 
@@ -2195,5 +2195,352 @@ $ curl --data "client_id=service&client_secret=$SECRET&grant_type=client_credent
    через `Token Introspection Endpoint`.
 
 ---
+
+---
+
+# 7. Интеграция приложений с Keycloak
+
+---
+
+### Создадим пользователя Keycloak:
+
+- Username: alice
+- Password: alice
+
+---
+
+### Создадим клиентов Keycloak.
+
+#### Для браузерного SPA
+
+Это публичный клиент, работающий в браузере и не имеющий возможности безопасно хранить учётные данные.
+
+- Client ID: mybrowserapp
+- Client authentication: OFF
+- Standard flow: ON
+- Root URL: http://localhost:8080
+- Valid Redirect URI: /*
+- Web origins: + (разрешаем `Cross-Origin`-запросы от браузерных приложений, работающих в различных доменах, как и Keycloak-сервер)
+
+> Устанавливая `Web origins: +` мы разрешаем отвечать на любые запросы, исходящие от "Valid Redirect URI", указанного в предыдущем пункте.
+
+> **Это минимальная конфигурация для интеграции SPA с Keycloak.**
+
+---
+
+#### Для серверного веб-приложения
+
+Это конфиденциальный клиент, способный безопасно хранить учётные данные на стороне сервера.
+
+- Client ID: mywebapp
+- Client authentication: ON
+- Standard flow: ON
+- Root URL: http://localhost:8080
+- Valid Redirect URI: /*
+
+> **Это минимальная конфигурация для интеграции с Keycloak приложений, использующих бекенд (а, возможно, и фронтенд).**
+>
+> Такие приложения способны самостоятельно поддерживать процесс аутентификации, полагаясь на браузерные механизмы аутентификации запросов
+> (например, на `cookie`).
+
+---
+
+#### Для бекенд-приложения, выступающего как сервер ресурсов
+
+Цель такого приложения состоит в авторизации запросов, основываясь на Bearer-токенах для предоставления доступа к защищенным ресурсам.
+
+- Client ID: mybackend
+- Client authentication: ON
+- Standard flow: ON (?)
+- Direct Access Grants: ON (для прямого получения токенов через `Token Endpoint` от имени пользователей)
+- Root URL: http://localhost:8080
+
+> Опция `Direct Access Grants` позволяет использовать тип предоставления учетных данных с паролем владельца ресурса OAuth2, что в настоящее
+> время считается плохой практикой, и должна быть отключена.
+
+
+---
+
+#### Для обратного прокси-клиента, работающего перед приложением
+
+Это конфиденциальный клиент, который будет использоваться обратным прокси-сервером для аутентификации и пересылки информации о субъекте его
+внутренним службам.
+
+- Client ID: proxy-client
+- Client authentication: ON
+- Standard flow: ON
+- Root URL: http://localhost
+- Valid Redirect URI: /*
+
+---
+
+### Выбор архитектуры интеграции
+
+Два подхода:
+
+- встроенный;
+- проксированный.
+
+#### Встроенная интеграция
+
+Обычно предоставляется сторонними библиотеками, фреймворками, веб-контейнерами или серверами приложений.
+В этом случае приложение непосредственно общается с Keycloak и отвечает за поддержку запросов и ответов `OpenID Connect`.
+Таким приложениям обычно требуется реализовать некоторый код или предоставить некоторый вид конфигурации для включения поддержки OIDC.
+Любые изменения настроек требуют повторного развертывания приложения:
+
+![700_embedded_integration.png](img/700_embedded_integration.png)
+
+Встроенная интеграция является относительно простой и не требует управления внешними сервисами, что даёт больший контроль над интеграцией.
+Если приложение является самодостаточным и применяемая библиотека или фреймворк предоставляют хорошую поддержку `OpenID Connect`, то
+интеграция может представлять собой написание нескольких строк кода или создание конфигурационного файла.
+
+#### Проксированная интеграция
+
+В прокси-стиле присутствует промежуточный слой между приложением и Keycloak. Интеграция управляется службой, работающей перед
+приложением, и отвечает за обработку запросов и ответов `OpenID Connect` от имени приложения:
+
+![701_proxied_integration.png](img/701_proxied_integration.png)
+
+Таким образом, приложение полагается на заголовки HTTP для извлечения токенов или любых других данных, связанных с безопасностью и
+с запросом. Код и конфигурация интеграции находятся за пределами границ приложения и управляются через внешнюю службу.
+
+Проксированная интеграция хорошо подходит для случаев:
+
+- отсутствует контроль над кодом приложения (например, для легаси кода);
+- приложение спрятано за обратным прокси или API Gateway и есть желание использовать их возможности;
+- требуется возможность контролировать и управлять интеграцией с Keycloak из единого места.
+
+> Обе архитектуры интеграции не взаимоисключают друг друга и даже могут существовать одновременно в пределах одной экосистемы.
+
+---
+
+### [Сертифицированные реализации OpenID Connect](https://openid.net/developers/certified-openid-connect-implementations/)
+
+#### Сертифицированные библиотеки для Java:
+
+- Certified Relying Party Libraries:
+    - GKIDP Broker 1.0.0
+- Certified OpenID Provider Libraries:
+    - Connect2id Server 6.1.2a
+    - Gluu Server 2.3
+    - Gluu Server 3.1.1
+    - MITREid Connect
+    - OIDC OP Overlay for Shibboleth IdP v3.2.1 version 1.0
+
+#### Сертифицированные реализации Keycloak:
+
+- Certified OpenID Provider Servers and Services:
+    - Keycloak 2.3.0
+    - Keycloak 18.0.0
+- Certified OpenID Providers for Logout Profiles:
+    - Keycloak 18.0.0
+- Certified Financial-grade API (FAPI) OpenID Providers:
+    - Keycloak 15.0.2
+- Certified Financial-grade API Client Initiated Backchannel Authentication Profile (FAPI-CIBA) OpenID Providers:
+    - Keycloak 15.0.2
+
+---
+
+### Пример защиты веб-приложения
+
+1. В [настройках веб-приложения](applications/ch7/springboot/webapp/src/main/resources/application.yaml) указать секрет клиента (здесь -
+   ранее созданного клиента `webapp`):
+
+```yaml
+client-secret: jOhqzq7llncZbZRasaUnRMkqwxo5B8ex
+```
+
+2. Запустить [веб-приложение](applications/ch7/springboot/webapp):
+
+```bash
+(cd applications/ch7/springboot/frontend;./mvnw spring-boot:run) 
+```
+
+3. Зайти на страницу приложения по адресу http://localhost:8080, произойдет перенаправление на страницу аутентификации Keycloak, на которой
+   следует указать учётные данные пользователя:
+
+![710_webapp_redirected.png](img/710_webapp_redirected.png)
+
+4. Доступ к приложению получен:
+
+![711_webapp_allowed.png](img/711_webapp_allowed.png)
+
+---
+
+### Пример защиты сервера ресурсов
+
+1. Запустить [сервер ресурсов](applications/ch7/springboot/resource-server):
+
+```bash
+(cd applications/ch7/springboot/backend;./mvnw spring-boot:run) 
+```
+
+2. Получить токен доступа (использовать секрет для ранее созданного клиента `mybackend`):
+
+```bash
+export access_token=$(\
+curl -X POST http://localhost:8180/realms/myrealm/protocol/openid-connect/token \
+-d "client_id=mybackend&client_secret=Sf35iMnERq5brXckt7wC9ADpFhBl9G5b" \
+-H "content-type: application/x-www-form-urlencoded" \
+-d "username=alice&password=alice&grant_type=password" \
+| jq --raw-output ".access_token" \
+)
+```
+
+```bash
+echo $access_token 
+```
+
+3. Теперь можно выполнять запросы:
+
+```bash
+curl http://localhost:8080/hello -H "Authorization: Bearer ${access_token}"
+```
+
+Если не предоставить токен, то будет возвращена ошибка `401 (Unauthorized)`:
+
+```bash
+curl -I http://localhost:8080/hello
+```
+
+---
+
+### Пример защиты JavaScript-приложения с использованием Keycloak JavaScript адаптера
+
+1. Запустить [JS-приложение](applications/ch7/keycloak-js-adapter):
+
+```bash
+(./applications/ch7/keycloak-js-adapter;npm install) 
+```
+
+```bash
+(./applications/ch7/keycloak-js-adapter;npm start)
+```
+
+2. Зайти на страницу приложения по адресу http://localhost:8080, произойдет перенаправление на страницу аутентификации Keycloak, на которой
+   следует указать учётные данные пользователя:
+
+![720_jsapp_redirected.png](img/720_jsapp_redirected.png)
+
+3. Доступ к приложению получен:
+
+![721_jsapp_allowed.png](img/721_jsapp_allowed.png)
+
+---
+
+### Пример защиты Frontend Node.js-приложения с помощью Keycloak Node.js адаптера
+
+1. Инсталлировать пакет адаптера:
+
+```bash
+$ npm install keycloak-connect 
+```
+
+2. В [конфигурационном файле](applications/ch7/nodejs/frontend/keycloak.json) указать секрет клиента (здесь - ранее созданного
+   клиента `webapp`):
+
+```json
+"credentials": {
+"secret": "jOhqzq7llncZbZRasaUnRMkqwxo5B8ex"
+}
+```
+
+3. Запустить [Node.jS-приложение](applications/ch7/nodejs/frontend):
+
+```bash
+(cd ./applications/ch7/nodejs/frontend;npm install)
+```
+
+```bash
+(cd ./applications/ch7/nodejs/frontend;npm start)
+```
+
+4. Зайти на страницу приложения по адресу http://localhost:8080, произойдет перенаправление на страницу аутентификации Keycloak, на которой
+   следует указать учётные данные пользователя:
+
+![730_nodejs_app_redirected.png](img/730_nodejs_app_redirected.png)
+
+5. Доступ к приложению получен:
+
+![731_nodejs_app_allowed.png](img/731_nodejs_app_allowed.png)
+
+
+---
+
+### Пример защиты Node.js-приложения сервера ресурсов с помощью Keycloak Node.js адаптера
+
+1. В [конфигурационном файле](applications/ch7/nodejs/resource-server/keycloak.json) указать, что приложение является `bearer-only`, т.е.
+   принимает только `Bearer`-токены:
+
+```json
+  "bearer-only": true
+```
+
+> Это заставляет адаптер выполнять локальные проверки и интроспекцию токена с целью выяснить, может ли запрос получить доступ к ресурсам
+> приложения.
+
+2. Запустить [Node.jS-приложение](applications/ch7/nodejs/resource-server):
+
+```bash
+(cd ./applications/ch7/nodejs/resource-server;npm install)
+```
+
+```bash
+(cd ./applications/ch7/nodejs/resource-server;npm start)
+```
+
+3. Получить Access Token, указав секрет клиента (здесь - ранее созданный клиент `mybackend`):
+
+```bash
+export access_token=$( \
+curl -X POST http://localhost:8180/realms/myrealm/protocol/openid-connect/token \
+-d "client_id=mybackend&client_secret=Sf35iMnERq5brXckt7wC9ADpFhBl9G5b" \
+-H "content-type: application/x-www-form-urlencoded" \
+-d "username=alice&password=alice&grant_type=password" \
+| jq --raw-output ".access_token" \
+)
+```
+
+```bash
+echo $access_token
+```
+
+4. Теперь можно выполнять запросы:
+
+```bash
+curl http://localhost:8080/hello -H "Authorization: Bearer ${access_token}"
+```
+
+```bash
+$ curl http://localhost:8080/hello -H "Authorization: Bearer ${access_token}"
+Access granted to protected resource%
+```
+
+Если не предоставить токен, то будет возвращена ошибка `403 (Forbidden)`:
+
+```bash
+curl -I http://localhost:8080/hello
+```
+
+---
+
+# 8. Стратегии авторизации
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,0 +1,6 @@
+{
+  "realm": "myrealm",
+  "auth-server-url": "${env.KC_URL:http://localhost:8180}",
+  "resource": "mybackend",
+  "bearer-only": true
+}
