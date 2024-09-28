@@ -11,7 +11,7 @@ $ docker exec -it keycloak bash
 3. Run export procedure `./kc.sh export --file <FILE_NAME> --realm <REALM_NAME>`:
 
 ```text
-bash-5.1$ ./kc.sh export --file realm-myrealm-exported.json --realm myrealm
+bash-5.1$ ./kc.sh export --file myrealm-exported.json --realm myrealm
 2024-08-23 08:36:06,423 INFO  [org.keycloak.quarkus.runtime.hostname.DefaultHostnameProvider] (main) Hostname settings: Base URL: <unset>, Hostname: <request>, Strict HTTPS: false, Path: <request>, Strict BackChannel: false, Admin URL: <unset>, Admin: <request>, Port: -1, Proxied: false
 2024-08-23 08:36:07,353 WARN  [io.quarkus.agroal.runtime.DataSources] (main) Datasource <default> enables XA but transaction recovery is not enabled. Please enable transaction recovery by setting quarkus.transaction-manager.enable-recovery=true, otherwise data may be lost if the application is terminated abruptly
 2024-08-23 08:36:07,641 WARN  [org.infinispan.PERSISTENCE] (keycloak-cache-init) ISPN000554: jboss-marshalling is deprecated and planned for removal
@@ -19,7 +19,7 @@ bash-5.1$ ./kc.sh export --file realm-myrealm-exported.json --realm myrealm
 2024-08-23 08:36:07,967 INFO  [org.keycloak.connections.infinispan.DefaultInfinispanConnectionProviderFactory] (main) Node name: node_822364, Site name: null
 2024-08-23 08:36:08,271 INFO  [org.keycloak.broker.provider.AbstractIdentityProviderMapper] (main) Registering class org.keycloak.broker.provider.mappersync.ConfigSyncEventListener
 2024-08-23 08:36:08,580 INFO  [org.keycloak.services] (main) KC-SERVICES0034: Export of realm 'myrealm' requested.
-2024-08-23 08:36:08,580 INFO  [org.keycloak.exportimport.singlefile.SingleFileExportProvider] (main) Exporting realm 'myrealm' into file /opt/keycloak/bin/realm-myrealm-exported.json
+2024-08-23 08:36:08,580 INFO  [org.keycloak.exportimport.singlefile.SingleFileExportProvider] (main) Exporting realm 'myrealm' into file /opt/keycloak/bin/myrealm-exported.json
 2024-08-23 08:36:08,965 INFO  [org.keycloak.services] (main) KC-SERVICES0035: Export finished successfully
 2024-08-23 08:36:09,001 INFO  [io.quarkus] (main) Keycloak 22.0.0 on JVM (powered by Quarkus 3.2.0.Final) started in 3.178s. Listening on: 
 2024-08-23 08:36:09,001 INFO  [io.quarkus] (main) Profile import_export activated. 
@@ -30,14 +30,14 @@ bash-5.1$ ./kc.sh export --file realm-myrealm-exported.json --realm myrealm
 4. On local machine the exported file can be found in local Docker container file:
 
 ```text
-$ sudo find / -name "realm-myrealm-exported.json" -type f
-/var/snap/docker/common/var-lib-docker/overlay2/.../diff/opt/keycloak/bin/realm-myrealm-exported.json
+$ sudo find / -name "myrealm-exported.json" -type f
+/var/snap/docker/common/var-lib-docker/overlay2/.../diff/opt/keycloak/bin/myrealm-exported.json
 ```
 
 It's a sudo directory so copy the file to the accessible location:
 
 ```text
-$ sudo cp /var/snap/docker/common/var-lib-docker/overlay2/10208ebe783a5c88abdd50a8b9503c5c9dc812c05016f17758af4edcff6ebcdb/diff/opt/keycloak/bin/realm-myrealm-exported.json /home/oleg/MyProjects/keycloak-iam/keycloak/config
+$ sudo cp /var/snap/docker/common/var-lib-docker/overlay2/10208ebe783a5c88abdd50a8b9503c5c9dc812c05016f17758af4edcff6ebcdb/diff/opt/keycloak/bin/myrealm-exported.json /home/oleg/MyProjects/keycloak-iam/keycloak/config
 ```
 
 And change the access:
@@ -47,10 +47,10 @@ $ ls -la
 total 76
 drwxrwxr-x 2 oleg oleg  4096 авг 23 11:42 .
 drwxrwxr-x 3 oleg oleg  4096 авг 23 09:31 ..
--rw-r--r-- 1 root root 66617 авг 23 11:42 realm-myrealm-exported.json
+-rw-r--r-- 1 root root 66617 авг 23 11:42 myrealm-exported.json
 
  11:43:05  oleg@oleg-desktop-linux  ...keycloak-iam/keycloak/config  ⬡ v20.16.0 
-$ sudo chown oleg:oleg realm-myrealm-exported.json 
+$ sudo chown oleg:oleg myrealm-exported.json 
 [sudo] password for oleg: 
 
  11:43:21  oleg@oleg-desktop-linux  ...keycloak-iam/keycloak/config  ⬡ v20.16.0 
@@ -58,12 +58,12 @@ $ ls -la
 total 76
 drwxrwxr-x 2 oleg oleg  4096 авг 23 11:42 .
 drwxrwxr-x 3 oleg oleg  4096 авг 23 09:31 ..
--rw-r--r-- 1 oleg oleg 66617 авг 23 11:42 realm-myrealm-exported.json
+-rw-r--r-- 1 oleg oleg 66617 авг 23 11:42 myrealm-exported.json
 
 ```
 
 File to be imported by Keycloak during startup must be located in Docker container
-path: `/opt/keycloak/data/import/realm-myrealm-exported.json`
+path: `/opt/keycloak/data/import/myrealm-exported.json`
 
 ---
 
@@ -965,8 +965,8 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHVF9UWD
 Самым простым и надежным механизмом приложению обнаружить логаут это просто использовать тот факт, что `ID` и `Access Token` являются
 короткоживущими. Когда Keycloak инвалидирует сессию при логауте, то `Refresh Token` уже не м.б. использован для получения новых токенов.
 
-Недостаток такого подхода в том, что с момента выхода пользователя из системы и до логаута всех приложений может пройти несколько минут (
-хотя зачастую этого достаточно).
+Недостаток такого подхода в том, что с момента выхода пользователя из системы и до логаута всех приложений может пройти несколько минут
+(хотя зачастую этого достаточно).
 
 Это также хорошая стратегия для общедоступных клиентов. Поскольку они обычно не предоставляют услуги напрямую, а используют токен доступа
 для вызова других служб, они быстро поймут, что сеанс больше недействителен.
@@ -2526,20 +2526,285 @@ curl -I http://localhost:8080/hello
 
 # 8. Стратегии авторизации
 
+Три вопроса для принятия решения о доступе пользователя к ресурсам:
+
+- кто пользователь?
+- какие данные с ним связаны?
+- какие у него ограничения на доступ к ресурсам?
+
+В качестве поставщика удостоверений Keycloak выпускает токены для приложений.
+Токены, выпущенные Keycloak, несут информацию о пользователе и контекст, в котором пользователь был аутентифицирован.
+Такой контекст может содержать информацию о клиенте, используемом пользователем или любую другую информацию, собранную в течение процесса
+аутентификации.
+Опираясь на данные, переносимые токенами, приложения могут выбирать различные механизмы контроля доступа.
+
+**Существует два основных авторизационных паттерна для ограничения доступа к защищенным ресурсам:**
+
+- контроль на уровне приложения:
+    - декларативно (использование метаданных и конфигурации);
+    - программно;
+- делегирование решения о доступе внешней службе (централизованная авторизация).
+
+> Эти два шаблона не являются взаимоисключающими и могут применяться одновременно.
+
+Keycloak позволяет обмениваться любой информацией, которая может понадобиться для ограничений доступа к ресурсам на уровне приложения.
+Также можно выбирать различные авторизационные паттерны.
 
 ---
 
+## Role-Based Access Control (RBAC)
+
+Защита ресурсов на основе ролей пользователя.
+
+Две категории ролей Keycloak:
+
+- `realm roles` - роли пользователя в пределах организации, безотносительно клиентов, существующих в realm;
+- `client roles` - роли конкретного клиента, значение которых зависит от семантики клиента;
+
+**Разрастание роли (role explosion)** - слишком большое количество ролей затрудняет управление доступом.
+Следует избегать слишком детальной ролевой авторизации в системе - роли не для этого.
+
+Keycloak позволяет назначать роли группам. Членство пользователя в группе автоматически делегирует ему роли этой группы.
+Такой механизм позволяет избежать индивидуального назначения привилегий многим пользователям.
+
+Keycloak предоставляет концепцию **композитных ролей** - особого типа ролей, состоящих из цепочки ролей, где пользователь, получивший
+композитную роль, автоматически получает любую роль из этой цепочки (отдельную роль или другую композитную роль).
+
+Несмотря на мощные возможности использования композитных ролей, применять их следует с осторожностью, т.к. могут возникнуть проблемы с
+производительностью, особенно в случае цепочки множества композитных ролей, а также проблемы с управляемостью из-за увеличения количества
+ролей в системе и детализации связанных с ними разрешений.
+
+При выборе между групповыми и композитными ролями следует отдавать предпочтение групповым ролям.
+
+Выбранная ролевая модель влияет на размер токенов, выпускаемых Keycloak. В идеале токен д. содержать минимальный набор ролей, необходимых
+клиенту для авторизации своих пользователей локально или при доступе к другой службе, использующей эти токены.
+
+## Group-Based Access Control (GBAC)
+
+Защита ресурсов на основе группы, которой принадлежит пользователь.
+
+Пользователи объединяются в группы:
+
+- на основе принадлежности к подразделению организации;
+- в соответствии с их ролями в организации.
+
+В Keycloak группы м. образовывать иерархию, по которой можно совершать обход.
+Когда Keycloak включает информацию о группах в токен, то для иерархических групп она будет иметь формат `РодительскаяГруппа/ДочерняяГруппа`.
+Такая информация о группах будет в каждом выпущенном сервером токене, где пользователь является членом группы.
+
+В отличие от ролей, групповая информация не включается в токены автоматически. Для этого следует ассоциировать клиента (или его область
+видимости) со специальным `protocol mapper`-ом.
+
+Не существует дефолтного `protocol mapper`, который автоматически бы включал групповую информацию в токены. Такой маппер для клиента нужно
+создавать специально. Или можно создать клиентскую область видимости клиента (`Client scope`) и назначить её клиенту.
+
+Откроем ранее созданного клиента `myclient`. На закладке `Client scopes` клиента отображен список всех областей видимости данного клиента:
+
+![800_myclient_scopes.png](img/800_myclient_scopes.png)
+
+Для создания клиенту нового маппера кликнем на ссылке `myclient-dedicated`:
+
+![801_myclient_dedicated_mappers.png](img/801_myclient_dedicated_mappers.png)
+
+Нажмем `Configure a new mapper` и выберем `Group membership`:
+
+![802_myclient_newmapper_groupmembership.png](img/802_myclient_newmapper_groupmembership.png)
+
+Сконфигурируем и сохраним маппер:
+
+![803_myclient_newmapper_groupmembership_done.png](img/803_myclient_newmapper_groupmembership_done.png)
+
+Далее в пункте меню "Groups" создадим группу под именем "Project Management Office":
+
+![804_new_group.png](img/804_new_group.png)
+
+![805_new_group_done.png](img/805_new_group_done.png)
+
+Теперь добавим в созданную группу пользователя `alice`. Для этого перейдем в настройки этого пользователя и на закладке "Groups" нажмем
+"Join group", а затем выберем в появившемся списке группу "Project Management Office" для назначения в неё текущего пользователя:
+
+![806_user_alice_newgroup.png](img/806_user_alice_newgroup.png)
+
+Пользователь `alice` теперь входит в группу "Project Management Office":
+
+![807_user_alice_newgroup_done.png](img/807_user_alice_newgroup_done.png)
+
+Для проверки того, как групповая информация будет отображаться в токенах, перейдем в настройки клиента `myclient` и на закладке
+"Client scopes" выберем вложенную закладку "Evaluate", после чего в поле "Users" выберем пользователя `alice` и нажмём кнопки
+"Generated access token" и "Generated ID token":
+
+![808_clientscopes_evaluate.png](img/808_clientscopes_evaluate.png)
+
+Будут отображены соответствующие токены:
+
+<table>
+<tr align="center">
+<td> <b>Access Token</b> </td> <td> <b>ID Token</b> </td>
+</tr>
+<tr valign="top">
+<td>
+
+```json
+{
+  "exp": 1727557482,
+  "iat": 1727557182,
+  "jti": "72b9721a-1504-4009-94b6-62902ece9b22",
+  "iss": "http://localhost:8180/realms/myrealm",
+  "aud": "account",
+  "sub": "6bb4bc6a-4ec8-4ac1-8dc5-06a6dac0c49f",
+  "typ": "Bearer",
+  "azp": "myclient",
+  "session_state": "b88942b0-053b-489e-9377-39dd2226bb47",
+  "acr": "1",
+  "allowed-origins": [
+    "http://localhost:8000"
+  ],
+  "realm_access": {
+    "roles": [
+      "default-roles-myrealm",
+      "offline_access",
+      "uma_authorization"
+    ]
+  },
+  "resource_access": {
+    "account": {
+      "roles": [
+        "manage-account",
+        "manage-account-links",
+        "view-profile"
+      ]
+    }
+  },
+  "scope": "openid profile email",
+  "sid": "b88942b0-053b-489e-9377-39dd2226bb47",
+  "email_verified": true,
+  "groups": [
+    "/Project Management Office"
+  ],
+  "preferred_username": "alice",
+  "given_name": "",
+  "family_name": "",
+  "email": "alice@alice.com"
+}
+```
+
+</td> <td>
+
+```json
+{
+  "exp": 1727557482,
+  "iat": 1727557182,
+  "auth_time": 0,
+  "jti": "2cb6c743-a1ef-4e38-8ab2-57fdc1b2fea4",
+  "iss": "http://localhost:8180/realms/myrealm",
+  "aud": "myclient",
+  "sub": "6bb4bc6a-4ec8-4ac1-8dc5-06a6dac0c49f",
+  "typ": "ID",
+  "azp": "myclient",
+  "session_state": "6caeb128-00de-41c4-969b-e5db78ca0d71",
+  "acr": "1",
+  "sid": "6caeb128-00de-41c4-969b-e5db78ca0d71",
+  "email_verified": true,
+  "realm_access": {
+    "roles": [
+      "default-roles-myrealm",
+      "offline_access",
+      "uma_authorization"
+    ]
+  },
+  "groups": [
+    "/Project Management Office"
+  ],
+  "preferred_username": "alice",
+  "given_name": "",
+  "family_name": "",
+  "email": "alice@alice.com"
+}
+```
+
+</td>
+</tr>
+</table>
+
+Как видим, генерируемые токены теперь содержат информацию о группах, в которых состоит пользователь. Т.е. в данном случае
+пользователь `alice` является членом единственной группы `Project Management Office`.
+
+---
+
+## OAuth2.0 Scopes
+
+Keycloak является авторизационным сервером OAuth2. В чистом OAuth2 существует два основных типа приложений:
+
+- клиент;
+- ресурсный сервер.
+
+`Access Token` выдаётся клиенту, чтобы клиент мог действовать от имени пользователя, при этом полномочия самого токена
+ограничены набором областей видимости, на использование которых пользователь выдал согласие.
+
+В свою очередь, потребителем `Access Token`-а является ресурсный сервер, который должен проверить этот токен и принять решение о доступе
+клиента к защищенному ресурсу этого сервера, в соответствии областями видимости, разрешение на использование которых выдал пользователь.
+
+Как видим, авторизация, использующая OAuth2 полностью основана на согласии пользователя.
+
+Фундаментальное различие между использованием областей OAuth2 и другими стратегиями авторизации:
+
+- OAuth2 защищает систему от клиентов (проверяется, разрешено ли клиенту выполнять действие или получать доступ от имени пользователя);
+- RBAC и д.р. защищают систему от пользователей.
+
+Keycloak обычно используется в корпоративных сценариях, где клиенты находятся в пределах предприятия, а доступ к требуемым ресурсам зависит
+не от согласия пользователей, а от разрешений, выданных системным администратором. Клиенты больше заинтересованы в аутентификации
+пользователей, где область доступа определяется ролями, группами или даже конкретными атрибутами, связанными с пользователем.
+
+В этом причина того, что по-умолчанию клиенты в Keycloak настроены так, чтобы не запрашивать согласие пользователя.
+
+---
+
+## Attribute-Based Access Control (ABAC)
+
+ABAC предполагает использование атрибутов, представленных токеном, а также информации о контексте аутентификации.
+
+Когда пользователи аутентифицируются через Keycloak, то токены, выпущенные сервером, содержат значимую информацию о контексте
+аутентификации - информацию об аутентифицированном пользователе, клиенте, для которого эти токены выпущены, и прочую информацию, полученную
+в процессе аутентификации.
+
+В Keycloak сопоставители протоколов (`protocol mappers`) позволяют сопоставлять любую информацию с токенами, чтобы её можно было
+использовать для обеспечения доступа на уровне приложения.
+Приложение использует утверждения из токена для расчета того, какие роли были предоставлены пользователю, а затем решить, следует ли
+предоставить доступ к определенному ресурсу.
+
+ABAC гибок для поддержки нескольких механизмов контроля доступа, но его нелегко реализовать и управлять.
 
 
+---
 
+## Keycloak как централизованный сервер авторизации
 
+Стратегии авторизации, описанные ранее, полагаются на специфичный набор данных о пользователя, и, в случае изменений требований к
+безопасности, приходится менять и код приложения.
 
+Централизованная авторизация позволяет:
 
+- отделить управление доступом к приложению от самого приложения;
+- применять несколько механизмов контроля доступа без привязки их к приложению;
+- использовать семантику самого приложения для указания защищаемых ресурсов.
 
+Keycloak может действовать как централизованная служба авторизации с помощью **служб авторизации**. Они основаны на наборе политик,
+представляющих различные механизмы контроля доступа к защищаемым ресурсам. Службы авторизации позволяют контролировать доступ к определенным
+действиям и атрибутам, связанным с защищаемыми ресурсами. Все это управляется через консоль администрирования Keycloak и
+REST API.
 
+Службы авторизации Keycloak используют ABAC для обеспечения детальной авторизации.
 
+Набор политик, представляющих различные механизмы контроля доступа, предоставляется из коробки, с возможностью объединения этих
+политик.
 
+Распространенной проблемой при использовании централизованного сервера авторизации является необходимость дополнительных обходов для
+принятия решения о доступе. Используя авторизацию на основе токенов, служба авторизации позволяет преодолеть эту проблему, выдавая токены
+со всеми разрешениями, предоставленными сервером, так что приложению не нужно выполнять дополнительные сетевые вызовы, а достаточно лишь
+локально интроспектировать токен. Служба авторизации также поддерживает инкрементную авторизацию, когда токены выдаются с узким набором
+разрешений с возможностью получения новых разрешений по мере необходимости.
 
+---
 
 
 

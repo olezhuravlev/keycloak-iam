@@ -44,7 +44,7 @@ services:
     depends_on:
       - keycloak-pg
     volumes:
-      - ./keycloak/ch7:/opt/keycloak/data/import
+      - ./keycloak/ch8:/opt/keycloak/data/import
       - ./keycloak/docker_healthcheck.sh:/docker_healthcheck.sh
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--http-port=8180" ]
     ports:
