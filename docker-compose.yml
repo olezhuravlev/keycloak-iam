@@ -4,9 +4,9 @@ services:
     image: haproxy:3.0.5
     container_name: haproxy
     volumes:
-      - ./applications/ch9/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./applications/ch9/haproxy/haproxy.crt.pem:/etc/haproxy/haproxy.crt.pem
-      - ./applications/ch9/haproxy/mykeycloak.crt:/etc/haproxy/mykeycloak.crt
+      - ./applications/ch10/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./applications/ch10/haproxy/haproxy.crt.pem:/etc/haproxy/haproxy.crt.pem
+      - ./applications/ch10/haproxy/mykeycloak.crt:/etc/haproxy/mykeycloak.crt
     links:
       - keycloak1
       - keycloak2
@@ -17,13 +17,14 @@ services:
       - "70:70" # haproxy admin console
     networks:
       - keycloak-network
+
   pga:
     image: dpage/pgadmin4:8.12
     container_name: pgadmin
     ports:
       - "8081:80"
     volumes:
-      - ./spring-ms-in-action-pga.json:/pgadmin4/servers.json
+      - ./pgadmin/spring-ms-in-action-pga.json:/pgadmin4/servers.json
     environment:
       - 'PGADMIN_DEFAULT_EMAIL=olezhuravlev@gmail.com'
       - 'PGADMIN_DEFAULT_PASSWORD=admin'
@@ -31,6 +32,7 @@ services:
       - keycloak-pg
     networks:
       - keycloak-network
+
   keycloak-pg:
     image: postgres:alpine3.19
     container_name: keycloak-pg
@@ -41,6 +43,7 @@ services:
       - 'POSTGRES_PASSWORD=postgres'
     networks:
       - keycloak-network
+
   keycloak1:
     image: quay.io/keycloak/keycloak:22.0.0
     container_name: keycloak1
@@ -62,10 +65,11 @@ services:
       KC_HOME: /opt/keycloak
     depends_on:
       - keycloak-pg
+      - openldap
     volumes:
-      - ./keycloak/ch8:/opt/keycloak/data/import
-      - ./applications/ch9/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch9/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
+      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
+      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ] # Production mode.
     ports:
       - "8443:8443" # By-default Keycloak listens for HTTPS traffic on port 8443.
@@ -79,11 +83,11 @@ services:
     networks:
       keycloak-network:
         ipv4_address: 172.30.0.11
+
   keycloak2:
     image: quay.io/keycloak/keycloak:22.0.0
     container_name: keycloak2
     environment:
-      #KC_HTTPS_PORT: 8443
       KC_LOG_LEVEL: INFO
       KC_METRICS_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
@@ -92,13 +96,14 @@ services:
       KC_HOME: /opt/keycloak
     depends_on:
       - keycloak-pg
+      - openldap
     volumes:
-      - ./keycloak/ch8:/opt/keycloak/data/import
-      - ./applications/ch9/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch9/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ] # Production mode.
+      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
+      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ]
     ports:
-      - "8543:8443" # By-default Keycloak listens for HTTPS traffic on port 8443.
+      - "8543:8443"
       - "9100:9000"
     healthcheck:
       test: [ "CMD-SHELL", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8180" ]
@@ -109,11 +114,11 @@ services:
     networks:
       keycloak-network:
         ipv4_address: 172.30.0.12
+
   keycloak3:
     image: quay.io/keycloak/keycloak:22.0.0
     container_name: keycloak3
     environment:
-      #KC_HTTPS_PORT: 8443
       KC_LOG_LEVEL: INFO
       KC_METRICS_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
@@ -122,13 +127,14 @@ services:
       KC_HOME: /opt/keycloak
     depends_on:
       - keycloak-pg
+      - openldap
     volumes:
-      - ./keycloak/ch8:/opt/keycloak/data/import
-      - ./applications/ch9/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch9/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ] # Production mode.
+      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
+      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ]
     ports:
-      - "8643:8443" # By-default Keycloak listens for HTTPS traffic on port 8443.
+      - "8643:8443"
       - "9200:9000"
     healthcheck:
       test: [ "CMD-SHELL", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8180" ]
@@ -139,6 +145,83 @@ services:
     networks:
       keycloak-network:
         ipv4_address: 172.30.0.13
+
+  kc-oidc:
+    image: quay.io/keycloak/keycloak:22.0.0
+    container_name: kc-oidc
+    environment:
+      KC_LOG_LEVEL: INFO
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOME: /opt/keycloak
+    depends_on:
+      - keycloak-pg
+      - openldap
+    volumes:
+      - ./applications/ch10/keycloak/import/third-party-provider-realm-ch10.json:/opt/keycloak/data/import/realm.json
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--http-port=8180" ] # Dev mode.
+    ports:
+      - "8743:8443"
+      - "9300:9000"
+    healthcheck:
+      test: [ "CMD-SHELL", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8180" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      keycloak-network:
+        ipv4_address: 172.30.0.14
+
+  openldap:
+    image: 'bitnami/openldap:2.6.8'
+    container_name: openldap
+    ports:
+      - '389:389'
+      - '1389:1389'
+      - '1636:1636'
+    environment:
+      LDAP_ROOT: "dc=example,dc=com"
+      LDAP_ADMIN_DN: "cn=admin,dc=example,dc=com"
+      LDAP_ADMIN_USERNAME: "admin"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_SKIP_DEFAULT_TREE: "yes"
+      LDAP_CUSTOM_LDIF_DIR: /tmp/openldap
+      LDAP_LOGLEVEL: -1
+    volumes:
+      - ./applications/ch10/openldap:/tmp/openldap
+    networks:
+      keycloak-network:
+        ipv4_address: 172.30.0.20
+
+  ldapadmin:
+    image: ghcr.io/ldapaccountmanager/lam:8.9
+    container_name: ldapadmin
+    ports:
+      - "8091:80"
+    environment:
+      LDAP_DOMAIN: "example.com"
+      LDAP_BASE_DN: "dc=example,dc=com"
+      LDAP_USERS_DN: "ou=People,dc=example,dc=com"
+      LDAP_GROUPS_DN: "ou=Group,dc=example,dc=com"
+      LDAP_SERVER: "ldap://openldap:1389"
+      LDAP_USER: "cn=admin,dc=example,dc=com"
+      LAM_PASSWORD: "admin"
+    depends_on:
+      - openldap
+    networks:
+      keycloak-network:
+        ipv4_address: 172.30.0.21
+
+  dhoster:
+    image: dvdarias/docker-hoster
+    container_name: dhoster
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+      - /etc/hosts:/tmp/hosts
+
 networks:
   keycloak-network:
     driver: bridge
