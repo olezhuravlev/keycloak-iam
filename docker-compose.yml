@@ -4,9 +4,9 @@ services:
     image: haproxy:3.0.5
     container_name: haproxy
     volumes:
-      - ./applications/ch10/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./applications/ch10/haproxy/haproxy.crt.pem:/etc/haproxy/haproxy.crt.pem
-      - ./applications/ch10/haproxy/mykeycloak.crt:/etc/haproxy/mykeycloak.crt
+      - ./applications/ch13/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./applications/ch13/haproxy/haproxy.crt.pem:/etc/haproxy/haproxy.crt.pem
+      - ./applications/ch13/haproxy/mykeycloak.crt:/etc/haproxy/mykeycloak.crt
     links:
       - keycloak1
       - keycloak2
@@ -67,10 +67,12 @@ services:
       - keycloak-pg
       - openldap
     volumes:
-      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
-      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ] # Production mode.
+      - ./applications/ch13/keycloak/conf/:/opt/keycloak/conf/
+      - ./applications/ch13/keycloak/import/allrealms-ch13.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch13/keycloak/providers/:/opt/keycloak/providers/
+      - ./applications/ch13/keycloak/themes/:/opt/keycloak/themes/
+    #entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--http-port=8180", "--spi-theme-static-max-age=-1", "--spi-theme-cache-themes=false", "--spi-theme-cache-templates=false", "--spi-theme-welcome-theme=theme-welcome" ] # Development mode. Disabled cache.
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180", "--spi-theme-welcome-theme=theme-welcome" ] # Production mode.
     ports:
       - "8443:8443" # By-default Keycloak listens for HTTPS traffic on port 8443.
       - "9000:9000" # Management interface port.
@@ -98,10 +100,11 @@ services:
       - keycloak-pg
       - openldap
     volumes:
-      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
-      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ]
+      - ./applications/ch13/keycloak/conf/:/opt/keycloak/conf/
+      - ./applications/ch13/keycloak/import/allrealms-ch13.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch13/keycloak/providers/:/opt/keycloak/providers/
+      - ./applications/ch13/keycloak/themes/:/opt/keycloak/themes/
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180", "--spi-theme-welcome-theme=theme-welcome" ]
     ports:
       - "8543:8443"
       - "9100:9000"
@@ -129,10 +132,11 @@ services:
       - keycloak-pg
       - openldap
     volumes:
-      - ./applications/ch10/keycloak/import/myrealm-ch10.json:/opt/keycloak/data/import/realm.json
-      - ./applications/ch10/keycloak/conf/keycloak.conf:/opt/keycloak/conf/keycloak.conf
-      - ./applications/ch10/keycloak/conf/mykeycloak.keystore:/opt/keycloak/conf/mykeycloak.keystore
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180" ]
+      - ./applications/ch13/keycloak/conf/:/opt/keycloak/conf/
+      - ./applications/ch13/keycloak/import/allrealms-ch13.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch13/keycloak/providers/:/opt/keycloak/providers/
+      - ./applications/ch13/keycloak/themes/:/opt/keycloak/themes/
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--http-port=8180", "--spi-theme-welcome-theme=theme-welcome" ]
     ports:
       - "8643:8443"
       - "9200:9000"
@@ -160,7 +164,7 @@ services:
       - keycloak-pg
       - openldap
     volumes:
-      - ./applications/ch10/keycloak/import/third-party-provider-realm-ch10.json:/opt/keycloak/data/import/realm.json
+      - ./applications/ch13/keycloak/import/third-party-provider-realm-ch10.json:/opt/keycloak/data/import/realm.json
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--http-port=8180" ] # Dev mode.
     ports:
       - "8743:8443"
@@ -191,7 +195,7 @@ services:
       LDAP_CUSTOM_LDIF_DIR: /tmp/openldap
       LDAP_LOGLEVEL: -1
     volumes:
-      - ./applications/ch10/openldap:/tmp/openldap
+      - ./applications/ch13/openldap:/tmp/openldap
     networks:
       keycloak-network:
         ipv4_address: 172.30.0.20
